@@ -217,7 +217,9 @@
     </form>
 
     <script>
-        const socket = io.connect('http://localhost:5000');
+        // Récupérer l'URL de base dynamiquement depuis le serveur Flask
+        const baseURL = '{{ request.host_url }}'.replace(/\/$/, ''); // Enlève le slash final s'il existe
+        const socket = io.connect(baseURL); // Connecter le socket à l'URL de base
         const eventId = '{{ event_id }}';
         const accessCode = getCookie('access_code'); // Fonction pour récupérer le cookie
 
