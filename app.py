@@ -82,10 +82,11 @@ def subscribe():
     subscriber.events.append(event)
     db.session.commit()
 
-    send_confirmation_email(subscriber)
+    # Passer l'ID de l'événement à la fonction d'envoi d'email
+    send_confirmation_email(subscriber, event_id)
     return jsonify({'message': 'Inscription réussie! Veuillez confirmer votre email.'}), 200
 
-def send_confirmation_email(subscriber):
+def send_confirmation_email(subscriber, event_id):
     try:
         # Informations SMTP récupérées depuis les variables d'environnement
         smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
@@ -95,7 +96,7 @@ def send_confirmation_email(subscriber):
 
         # Utilisation de request.host_url pour obtenir l'URL de base automatiquement
         base_url = request.host_url.rstrip('/')  # Enlever le '/' final
-        confirmation_link = f"{base_url}/confirm/{subscriber.id}?access_code={subscriber.access_code}"
+        confirmation_link = f"{base_url}/confirm/{subscriber.id}/{event_id}?access_code={subscriber.access_code}"
 
         message_body = (
             "Cher abonné,\n\n"
@@ -141,8 +142,8 @@ def send_confirmation_email(subscriber):
         print(f'Une erreur est survenue : {e}')
 
 # Route de confirmation
-@app.route('/confirm/<int:subscriber_id>', methods=['GET'])
-def confirm(subscriber_id):
+@app.route('/confirm/<int:subscriber_id>/<int:event_id>', methods=['GET'])
+def confirm(subscriber_id, event_id):
     access_code = request.args.get('access_code')
     subscriber = Subscriber.query.get(subscriber_id)
 
@@ -151,7 +152,7 @@ def confirm(subscriber_id):
         db.session.commit()
 
         # Créer une réponse pour définir le cookie
-        response = make_response(redirect(url_for('chat', event_id=subscriber.events[0].id, access_code=access_code)))
+        response = make_response(redirect(url_for('chat', event_id=event_id, access_code=access_code)))
         
         # Définir le cookie avec une durée de vie d'une semaine
         response.set_cookie('access_code', access_code, max_age=7*24*60*60)  # 7 jours
