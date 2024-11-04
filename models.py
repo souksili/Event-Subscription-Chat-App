@@ -10,14 +10,14 @@ event_subscriber = db.Table('event_subscriber',
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(100000000), nullable=False)
+    description = db.Column(db.String(100000000), nullable=False)
     subscribers = db.relationship('Subscriber', secondary=event_subscriber, backref=db.backref('events', lazy='dynamic'))
     messages = db.relationship('Message', backref='event', lazy=True)
 
 class Subscriber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(1200), nullable=False)
     confirmed = db.Column(db.Boolean, default=False)
 
 class Message(db.Model):
