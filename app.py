@@ -105,20 +105,29 @@ def index():
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.json.get('email')
-    event_id = request.json.get('event_id')
+    title = request.json.get('title')
+    description = request.json.get('description')
 
     if not email or not is_valid_email(email):
         return jsonify({'error': 'Email invalide'}), 400
+    
+    if not title or not description:
+        return jsonify({'error': 'Titre et description requis'}), 400
+
+    event = Event.query.filter_by(title=title, description=description).first()
+    if not event:
+        return jsonify({'error': "Événement non trouvé"}), 404
+
+    event_id = event.id
 
     subscriber = Subscriber.query.filter_by(email=email).first()
     if not subscriber:
         subscriber = Subscriber(email=email, access_code=generate_access_code())
         db.session.add(subscriber)
 
-    if event_id in [event.id for event in subscriber.events]:
+    if event_id in [e.id for e in subscriber.events]:
         return jsonify({'error': 'Déjà inscrit à cet événement'}), 400
 
-    event = Event.query.get(event_id)
     subscriber.events.append(event)
     db.session.commit()
 
