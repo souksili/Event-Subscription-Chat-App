@@ -9,3 +9,4 @@ eventlet
 psycopg2-binary
 qrcode
 pillow
+flask_cors

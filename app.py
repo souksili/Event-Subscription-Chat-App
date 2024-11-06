@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, make_response
 from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 import re
 import smtplib
 from email.mime.text import MIMEText
@@ -22,6 +23,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 socketio = SocketIO(app)
+
+CORS(app)
 
 logging.basicConfig(level=logging.INFO)
 
