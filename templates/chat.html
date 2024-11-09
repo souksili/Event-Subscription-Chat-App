@@ -62,11 +62,11 @@
     <!-- Inclusion de l'API Jitsi -->
     <script src="https://meet.jit.si/external_api.js"></script>
     <script>
-        // Fonction pour démarrer la conférence avec un ID d'événement
+        // Fonction pour démarrer la conférence avec un ID d'événement extrait de l'URL
         function startConference() {
-            // Récupérer l'ID de l'événement depuis l'URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const eventId = urlParams.get('eventId');  // Exemple : eventId=34
+            // Extraire l'ID de l'événement depuis l'URL
+            const pathSegments = window.location.pathname.split('/'); // Divise le chemin de l'URL en segments
+            const eventId = pathSegments[3]; // Le deuxième chiffre (ID de l'événement) se trouve ici
 
             if (!eventId) {
                 alert("ID de l'événement manquant.");
