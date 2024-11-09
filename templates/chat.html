@@ -51,7 +51,7 @@
             
             // Extraire l'ID de l'événement de l'URL actuelle
             const urlParams = window.location.pathname.split('/');
-            const eventId = urlParams[urlParams.length - 2]; // L'ID est juste avant le dernier segment
+            const eventId = urlParams[urlParams.length - 1]; // L'ID est le dernier segment de l'URL
 
             if (!eventId || isNaN(eventId)) {
                 alert("ID de l'événement manquant ou invalide.");
