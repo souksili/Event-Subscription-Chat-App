@@ -41,7 +41,7 @@
 <body>
     <div class="container">
         <h1>Créer une conférence Jitsi</h1>
-        <p>Cliquez sur le bouton ci-dessous pour créer une nouvelle conférence Jitsi où vous pouvez rejoindre immédiatement, sans hôte.</p>
+        <p>Cliquez sur le bouton ci-dessous pour créer une nouvelle conférence Jitsi où vous pouvez rejoindre immédiatement, sans attendre un hôte.</p>
         <a href="#" id="startConference" class="btn">Démarrer la conférence</a>
     </div>
 
@@ -50,7 +50,10 @@
             event.preventDefault();
             // Générer une salle unique
             const roomName = 'room-' + Math.random().toString(36).substring(2, 10);
-            const url = `https://meet.jit.si/${roomName}`;
+            
+            // URL de la conférence avec paramètres pour éviter l'attente d'un hôte
+            const url = `https://meet.jit.si/${roomName}?config.allowAnonymousInPublicRooms=true&config.noLogin=true&config.startWithAudioMuted=false&config.disableInvite=true`;
+
             // Ouvrir la conférence dans une nouvelle fenêtre
             window.open(url, '_blank');
         });
