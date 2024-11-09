@@ -95,13 +95,13 @@
                 height: 700,
                 parentNode: document.querySelector("#meet"),
                 configOverwrite: { 
-                    prejoinPageEnabled: false,
-                    startWithAudioMuted: true,
-                    startWithVideoMuted: true
+                    prejoinPageEnabled: false,  // Désactiver la page pré-rejoindre
+                    startWithAudioMuted: true,  // Commencer avec audio désactivé
+                    startWithVideoMuted: true   // Commencer avec vidéo désactivée
                 },
                 interfaceConfigOverwrite: {
-                    filmStripOnly: false,
-                    SHOW_JITSI_WATERMARK: false,
+                    filmStripOnly: false,  // Permet d'afficher les participants à côté de la vidéo
+                    SHOW_JITSI_WATERMARK: false, // Supprimer le watermark Jitsi
                     SHOW_WATERMARK_FOR_GUESTS: false,
                     DEFAULT_REMOTE_DISPLAY_NAME: 'Participant',
                     TOOLBAR_BUTTONS: [
