@@ -64,31 +64,19 @@
     <script>
         // Fonction pour démarrer la conférence avec un ID d'événement extrait de l'URL
         function startConference() {
-            // Extraire l'ID de l'événement depuis la partie avant "?" dans l'URL
-            const eventId = window.location.pathname.split('/').pop(); // Récupère la dernière partie du chemin de l'URL
-
-            // Log: Afficher l'ID de l'événement extrait
-            console.log("ID de l'événement extrait : " + eventId);
+            const eventId = window.location.pathname.split('/').pop(); // Récupère l'ID de l'événement
 
             if (!eventId) {
                 alert("ID de l'événement manquant.");
                 console.error("Erreur : ID de l'événement manquant.");
-                return;  // Retourner ici arrête l'exécution de la fonction si l'ID est manquant
+                return;
             }
 
-            // Créer le nom de la salle basé sur l'ID de l'événement
-            const roomName = `event-${eventId}`;
-
-            // Log: Afficher le nom de la salle généré
-            console.log("Nom de la salle généré : " + roomName);
+            const roomName = `event-${eventId}`; // Nom de la salle basé sur l'ID de l'événement
 
             // Générer le lien d'invitation pour les participants
             const inviteLink = `https://meet.jit.si/${roomName}`;
 
-            // Log: Afficher le lien d'invitation généré
-            console.log("Lien d'invitation généré : " + inviteLink);
-
-            // Mettre à jour le lien dans la page HTML
             document.getElementById("invite-link").href = inviteLink;
             document.getElementById("invite-link").innerText = inviteLink;
 
@@ -96,21 +84,23 @@
 
             const domain = "meet.jit.si";
             const options = {
-                roomName: roomName,  // Utilisation du même nom de salle pour tous les participants
+                roomName: roomName,
                 width: "100%",
                 height: 700,
                 parentNode: document.querySelector("#meet"),
                 configOverwrite: { 
                     prejoinPageEnabled: false, // Désactiver la page pré-rejoindre
-                    startWithAudioMuted: true,  // Démarrer la réunion avec l'audio coupé
-                    startWithVideoMuted: true,  // Démarrer la réunion avec la vidéo coupée
-                    enableNoAudioDetection: false, // Désactiver la détection d'absence d'audio
-                    enableNoVideoDetection: false,  // Désactiver la détection d'absence de vidéo
-                    membersOnly: false  // Désactiver la restriction "members only"
+                    startWithAudioMuted: true,  // Démarrer avec audio coupé
+                    startWithVideoMuted: true,  // Démarrer avec vidéo coupée
+                    enableNoAudioDetection: false,
+                    enableNoVideoDetection: false,
+                    membersOnly: false, // Permet à tout utilisateur d'entrer sans restriction
+                    allowMultipleParticipants: true,  // Permet plusieurs participants sans restriction
+                    requireDisplayName: false, // Aucun nom d'affichage requis
                 },
                 interfaceConfigOverwrite: {
-                    filmStripOnly: false,  // Permet d'afficher les participants à côté de la vidéo
-                    SHOW_JITSI_WATERMARK: false, // Supprimer le watermark Jitsi
+                    filmStripOnly: false, 
+                    SHOW_JITSI_WATERMARK: false,
                     SHOW_WATERMARK_FOR_GUESTS: false,
                     DEFAULT_REMOTE_DISPLAY_NAME: 'Participant',
                     TOOLBAR_BUTTONS: [
@@ -120,24 +110,16 @@
                 }
             };
 
-            // Log: Afficher les options passées à l'API Jitsi
-            console.log("Options de configuration de Jitsi : ", options);
-
-            // Créer une instance de JitsiMeetExternalAPI
+            // Créer une instance de l'API Jitsi
             api = new JitsiMeetExternalAPI(domain, options);
-
-            // Log: Vérification que l'instance API est correctement créée
-            console.log("Instance de JitsiMeetExternalAPI créée : ", api);
 
             // Événements pour gérer les actions pendant la conférence
             api.addEventListener("videoConferenceJoined", (event) => {
-                // Log: Quand un participant rejoint la salle
                 console.log("Un participant a rejoint la salle :", event.roomName);
                 alert("Vous avez rejoint la conférence.");
             });
 
             api.addEventListener("videoConferenceLeft", () => {
-                // Log: Quand un participant quitte la salle
                 console.log("Un participant a quitté la salle");
                 alert("Vous avez quitté la conférence.");
                 document.getElementById("meet").innerHTML = ""; // Effacer la conférence à la sortie
