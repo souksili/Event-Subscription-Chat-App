@@ -41,63 +41,12 @@
 <body>
     <div class="container">
         <h1>Créer une conférence Jitsi</h1>
-        <p>Cliquez sur le bouton ci-dessous pour rejoindre la salle d'attente de la conférence Jitsi.</p>
-        
-        <!-- Le bouton "Je suis hôte" est contenu dans ce div, qui sera caché pour les utilisateurs non autorisés -->
-        <div id="hostButtonContainer" style="display: none;">
-            <a href="#" id="startAsHost" class="btn">Je suis hôte</a>
-        </div>
-
-        <p>Cliquez sur le bouton ci-dessous pour rejoindre la conférence.</p>
+        <p>Cliquez sur le bouton ci-dessous pour créer une nouvelle conférence Jitsi où vous pouvez rejoindre immédiatement, sans hôte.</p>
         <a href="#" id="startConference" class="btn">Démarrer la conférence</a>
     </div>
 
     <script>
-        // Liste des e-mails autorisés à devenir hôte
-        const allowedEmails = ['user1@example.com', 'user2@example.com', 'user3@example.com'];
-
-        // Fonction pour vérifier si l'e-mail de l'utilisateur est autorisé à devenir hôte
-        function checkIfUserIsHostAuthorized() {
-            const userEmail = prompt("Veuillez entrer votre e-mail pour vérifier votre statut d'hôte"); // Demande à l'utilisateur son e-mail
-
-            if (allowedEmails.includes(userEmail)) {
-                // Si l'e-mail est dans la liste autorisée, afficher le bouton "Je suis hôte"
-                document.getElementById('hostButtonContainer').style.display = 'block';
-            } else {
-                // Si l'e-mail n'est pas autorisé, ne rien faire ou afficher un message
-                alert("Désolé, vous n'êtes pas autorisé à être hôte.");
-            }
-        }
-
-        // Vérifier dès le chargement de la page si l'utilisateur est autorisé à être hôte
-        window.onload = checkIfUserIsHostAuthorized;
-
-        // Lancer la conférence pour l'utilisateur (tous les utilisateurs peuvent rejoindre la conférence)
         document.getElementById('startConference').addEventListener('click', function(event) {
-            event.preventDefault();
-            
-            // Extraire l'ID de l'événement de l'URL actuelle
-            const urlParams = window.location.pathname.split('/');
-            const eventId = urlParams[urlParams.length - 1]; // L'ID est le dernier segment de l'URL
-
-            if (!eventId || isNaN(eventId)) {
-                alert("ID de l'événement manquant ou invalide.");
-                console.error("Erreur : ID de l'événement manquant ou invalide.");
-                return;
-            }
-
-            // Créer un nom de salle unique basé sur l'ID de l'événement
-            const roomName = `event-${eventId}`;
-
-            // Générer l'URL de la conférence Jitsi avec ce nom de salle
-            const url = `https://meet.jit.si/${roomName}`;
-
-            // Ouvrir la conférence dans une nouvelle fenêtre
-            window.open(url, '_blank');
-        });
-
-        // Lancer la conférence en tant qu'hôte (uniquement pour les utilisateurs autorisés)
-        document.getElementById('startAsHost').addEventListener('click', function(event) {
             event.preventDefault();
             
             // Extraire l'ID de l'événement de l'URL actuelle
