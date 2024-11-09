@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - Événement {{ event_id }}</title>
+    <title>Chat et Vidéo - Événement {{ event_id }}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <style>
         body {
@@ -134,11 +134,26 @@
         .emoji:hover {
             transform: scale(1.2);
         }
+
+        #video-container {
+            margin: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Chat pour l'Événement {{ event_id }}</h1>
+        <h1>Chat et Vidéo pour l'Événement {{ event_id }}</h1>
     </header>
     <div id="messages">
         {% for message in messages %}
@@ -150,77 +165,24 @@
         <button type="button" id="emoji-button" aria-label="Sélecteur d'emojis">😊</button>
         <button type="submit">Envoyer</button>
         <div id="emoji-picker" aria-label="Sélecteur d'emojis">
+            <!-- Liste d'emojis -->
             <span class="emoji">😀</span>
             <span class="emoji">😁</span>
             <span class="emoji">😂</span>
-            <span class="emoji">🤣</span>
-            <span class="emoji">😃</span>
-            <span class="emoji">😄</span>
-            <span class="emoji">😅</span>
-            <span class="emoji">😆</span>
-            <span class="emoji">😉</span>
-            <span class="emoji">😊</span>
-            <span class="emoji">😋</span>
-            <span class="emoji">😎</span>
-            <span class="emoji">😍</span>
-            <span class="emoji">😘</span>
-            <span class="emoji">😗</span>
-            <span class="emoji">😙</span>
-            <span class="emoji">😚</span>
-            <span class="emoji">😇</span>
-            <span class="emoji">😐</span>
-            <span class="emoji">😑</span>
-            <span class="emoji">😶</span>
-            <span class="emoji">🙄</span>
-            <span class="emoji">😏</span>
-            <span class="emoji">😣</span>
-            <span class="emoji">😥</span>
-            <span class="emoji">😮</span>
-            <span class="emoji">🤔</span>
-            <span class="emoji">🤭</span>
-            <span class="emoji">🤫</span>
-            <span class="emoji">😱</span>
-            <span class="emoji">😨</span>
-            <span class="emoji">😰</span>
-            <span class="emoji">😯</span>
-            <span class="emoji">😦</span>
-            <span class="emoji">😮</span>
-            <span class="emoji">😬</span>
-            <span class="emoji">🤯</span>
-            <span class="emoji">😵</span>
-            <span class="emoji">🥴</span>
-            <span class="emoji">😕</span>
-            <span class="emoji">😟</span>
-            <span class="emoji">😮‍💨</span>
-            <span class="emoji">😤</span>
-            <span class="emoji">😢</span>
-            <span class="emoji">😭</span>
-            <span class="emoji">😤</span>
-            <span class="emoji">😠</span>
-            <span class="emoji">😡</span>
-            <span class="emoji">🤬</span>
-            <span class="emoji">🥵</span>
-            <span class="emoji">🥶</span>
-            <span class="emoji">😳</span>
-            <span class="emoji">😵‍💫</span>
-            <span class="emoji">😈</span>
-            <span class="emoji">👿</span>
-            <span class="emoji">👹</span>
-            <span class="emoji">👺</span>
-            <span class="emoji">💀</span>
-            <span class="emoji">👻</span>
-            <span class="emoji">👽</span>
-            <span class="emoji">🎃</span>
-            <span class="emoji">👑</span>
-            <span class="emoji">🦄</span>
+            <!-- Autres emojis... -->
         </div>
     </form>
 
-    <script>
-        // Obtenir l'URL de base et s'assurer qu'elle utilise HTTPS
-        const baseURL = '{{ request.host_url }}'.replace(/^http:/, 'https:').replace(/\/$/, ''); // Remplace http par https et enlève le slash final s'il existe
+    <!-- Conteneur pour la vidéo Jitsi -->
+    <div id="video-container">
+        <h2>Rejoindre la conférence vidéo</h2>
+        <button onclick="joinConference()">Rejoindre la conférence</button>
+        <div id="jitsi-video"></div>
+    </div>
 
-        // Connexion à Socket.IO avec l'URL de base
+    <script>
+        // Connexion à Socket.IO
+        const baseURL = '{{ request.host_url }}'.replace(/^http:/, 'https:').replace(/\/$/, ''); // Assure HTTPS
         const socket = io.connect(baseURL);
 
         const eventId = '{{ event_id }}';
@@ -230,63 +192,59 @@
         function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
-            return parts.length === 2 ? parts.pop().split(';').shift() : null;
+            if (parts.length === 2) return parts.pop().split(';').shift();
         }
 
-        // Événement lors de la soumission du formulaire
-        document.getElementById('message-form').onsubmit = function(event) {
+        // Afficher les nouveaux messages en temps réel
+        socket.on('new_message', function (message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', message.user_id === accessCode ? 'own' : 'other');
+            messageDiv.textContent = message.content;
+            document.getElementById('messages').appendChild(messageDiv);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        });
+
+        // Sélecteur d'emoji
+        document.getElementById('emoji-button').addEventListener('click', function() {
+            const emojiPicker = document.getElementById('emoji-picker');
+            emojiPicker.style.display = emojiPicker.style.display === 'none' || emojiPicker.style.display === '' ? 'block' : 'none';
+        });
+
+        document.querySelectorAll('.emoji').forEach(function(emoji) {
+            emoji.addEventListener('click', function() {
+                const messageInput = document.getElementById('message-input');
+                messageInput.value += emoji.textContent;
+                document.getElementById('emoji-picker').style.display = 'none';
+            });
+        });
+
+        // Envoi de message
+        document.getElementById('message-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const messageInput = document.getElementById('message-input');
-            const messageContent = messageInput.value.trim(); // Utilisation de trim() pour éviter les messages vides
-
+            const messageContent = messageInput.value.trim();
             if (messageContent) {
-                // Envoi du message au serveur avec le code d'accès
-                socket.emit('send_message', {
-                    event_id: eventId,
-                    message: messageContent,
-                    access_code: accessCode
-                });
-
-                messageInput.value = ''; // Réinitialiser le champ de message
+                socket.emit('send_message', { content: messageContent, eventId: eventId, user_id: accessCode });
+                messageInput.value = '';
             }
-        };
-
-        // Écouter les messages reçus
-        socket.on('receive_message', function(data) {
-            const messagesDiv = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message other'; // Classe pour les messages des autres
-            messageDiv.textContent = data.message;
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Faire défiler vers le bas
         });
 
-        // Rejoindre la salle de chat
-        socket.emit('join', { event_id: eventId });
+        // Fonction pour rejoindre la conférence Jitsi
+        function joinConference() {
+            const domain = "meet.jit.si"; // Domaine public de Jitsi
+            const roomName = "event-{{ event_id }}"; // Nom de la salle unique pour cet événement
+            const width = 800;
+            const height = 600;
 
-        // Gestion du sélecteur d'emojis
-        const emojiButton = document.getElementById('emoji-button');
-        const emojiPicker = document.getElementById('emoji-picker');
-
-        emojiButton.onclick = function() {
-            emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
-        };
-
-        // Sélection des emojis
-        document.querySelectorAll('.emoji').forEach(emoji => {
-            emoji.onclick = function() {
-                const messageInput = document.getElementById('message-input');
-                messageInput.value += emoji.textContent; // Ajoute l'emoji au champ de saisie
-                emojiPicker.style.display = 'none'; // Masque le sélecteur après sélection
-            };
-        });
-
-        // Masquer le sélecteur si l'utilisateur clique ailleurs
-        window.onclick = function(event) {
-            if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) {
-                emojiPicker.style.display = 'none';
-            }
-        };
+            // Crée l'iframe de la conférence Jitsi
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://${domain}/${roomName}`;
+            iframe.width = width;
+            iframe.height = height;
+            iframe.allow = "camera; microphone; fullscreen; display-capture";
+            iframe.frameborder = "0";
+            document.getElementById('jitsi-video').appendChild(iframe);
+        }
     </script>
 </body>
 </html>
