@@ -62,7 +62,6 @@
     <!-- Inclusion de l'API Jitsi -->
     <script src="https://meet.jit.si/external_api.js"></script>
     <script>
-        // Fonction pour démarrer la conférence avec un ID d'événement extrait de l'URL
         function startConference() {
             const eventId = window.location.pathname.split('/').pop(); // Récupère l'ID de l'événement
 
@@ -94,12 +93,13 @@
                     startWithVideoMuted: true,  // Démarrer avec vidéo coupée
                     enableNoAudioDetection: false,
                     enableNoVideoDetection: false,
-                    membersOnly: false, // Permet à tout utilisateur d'entrer sans restriction
-                    allowMultipleParticipants: true,  // Permet plusieurs participants sans restriction
-                    requireDisplayName: false, // Aucun nom d'affichage requis
+                    membersOnly: false, // Permet à tous d'entrer sans restriction
+                    requireDisplayName: false, // Pas de nom d'affichage requis
+                    enableLobby: false, // Désactiver le lobby
+                    allowGuests: true, // Permet aux invités sans compte de rejoindre
                 },
                 interfaceConfigOverwrite: {
-                    filmStripOnly: false, 
+                    filmStripOnly: false,
                     SHOW_JITSI_WATERMARK: false,
                     SHOW_WATERMARK_FOR_GUESTS: false,
                     DEFAULT_REMOTE_DISPLAY_NAME: 'Participant',
@@ -113,7 +113,6 @@
             // Créer une instance de l'API Jitsi
             api = new JitsiMeetExternalAPI(domain, options);
 
-            // Événements pour gérer les actions pendant la conférence
             api.addEventListener("videoConferenceJoined", (event) => {
                 console.log("Un participant a rejoint la salle :", event.roomName);
                 alert("Vous avez rejoint la conférence.");
