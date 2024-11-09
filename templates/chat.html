@@ -3,41 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conférence Vidéo - Événement {{ event_id }}</title>
+    <title>Conférence Jitsi - Mode Hôte et Invités</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            justify-content: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            padding: 20px;
         }
-
-        iframe {
-            width: 80%;
-            height: 80%;
-            border: none;
-            border-radius: 10px;
-        }
-
         h1 {
-            margin: 20px 0;
             color: #4CAF50;
+        }
+        #host-info {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        #meet {
+            width: 100%;
+            height: 700px;
+            margin-top: 20px;
+            background-color: #e9ecef;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <h1>Conférence Vidéo - Événement {{ event_id }}</h1>
+    <h1>Créer une Conférence Jitsi</h1>
 
-    <iframe src="https://meet.jit.si/event-{{ event_id }}" allow="camera; microphone; fullscreen; display-capture"></iframe>
+    <!-- Affichage des liens d'hôte et d'invitation -->
+    <p id="host-info">
+        Lien Hôte (pour créer et modérer la salle) : 
+        <a id="host-link" target="_blank">Lien Hôte</a>
+    </p>
+    <p>
+        Partagez ce lien pour inviter les autres participants : 
+        <a id="invite-link" target="_blank">Lien d'invitation</a>
+    </p>
+    <button onclick="startHostConference()">Démarrer la conférence en tant qu'hôte</button>
 
+    <!-- Div pour afficher la conférence -->
+    <div id="meet"></div>
+
+    <!-- Inclusion de l'API Jitsi -->
+    <script src="https://meet.jit.si/external_api.js"></script>
     <script>
-        // Assurez-vous que l'iframe est correctement chargé
-        console.log("Chargement de la conférence pour l'événement {{ event_id }}");
+        // Génère un identifiant unique pour la salle
+        function generateRoomCode() {
+            return 'room-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Stocker le code de la salle
+        const roomName = generateRoomCode();
+
+        // Génère les liens pour l'hôte et l'invitation
+        const hostLink = `https://meet.jit.si/${roomName}?userRole=host`;
+        const inviteLink = `https://meet.jit.si/${roomName}`;
+
+        // Mettre à jour les liens dans la page HTML
+        document.getElementById("host-link").href = hostLink;
+        document.getElementById("host-link").innerText = hostLink;
+        document.getElementById("invite-link").href = inviteLink;
+        document.getElementById("invite-link").innerText = inviteLink;
+
+        let api; // Instance de JitsiMeetExternalAPI
+
+        // Fonction pour démarrer la conférence en tant qu'hôte
+        function startHostConference() {
+            const domain = "meet.jit.si";
+            const options = {
+                roomName: roomName,
+                width: "100%",
+                height: 700,
+                parentNode: document.querySelector("#meet"),
+                configOverwrite: { 
+                    prejoinPageEnabled: false,
+                    startWithAudioMuted: true,
+                    startWithVideoMuted: true
+                },
+                interfaceConfigOverwrite: {
+                    filmStripOnly: false,
+                    SHOW_JITSI_WATERMARK: false,
+                    SHOW_WATERMARK_FOR_GUESTS: false,
+                    DEFAULT_REMOTE_DISPLAY_NAME: 'Participant',
+                    TOOLBAR_BUTTONS: [
+                        'microphone', 'camera', 'fullscreen', 'chat', 'raisehand', 
+                        'tileview', 'videobackgroundblur', 'hangup'
+                    ]
+                }
+            };
+
+            // Créer une instance de JitsiMeetExternalAPI pour l'hôte
+            api = new JitsiMeetExternalAPI(domain, options);
+
+            // Événements pour gérer les actions de l'hôte
+            api.addEventListener("videoConferenceJoined", (event) => {
+                console.log("L'hôte a rejoint la salle :", event.roomName);
+                alert("Vous avez rejoint la salle en tant qu'hôte.");
+            });
+
+            api.addEventListener("participantRoleChanged", (event) => {
+                if (event.role === "moderator") {
+                    alert("Vous êtes maintenant modérateur et pouvez gérer les participants.");
+                }
+            });
+
+            api.addEventListener("videoConferenceLeft", () => {
+                console.log("L'hôte a quitté la salle");
+                alert("Vous avez quitté la salle en tant qu'hôte.");
+                document.getElementById("meet").innerHTML = ""; // Effacer la conférence à la sortie
+            });
+        }
     </script>
 </body>
 </html>
