@@ -65,7 +65,6 @@
         // Fonction pour démarrer la conférence avec un ID d'événement extrait de l'URL
         function startConference() {
             // Extraire l'ID de l'événement depuis la partie avant "?" dans l'URL
-            const urlParams = new URLSearchParams(window.location.search); // Utilise URLSearchParams pour récupérer les paramètres
             const eventId = window.location.pathname.split('/').pop(); // Récupère la dernière partie du chemin de l'URL
 
             // Log: Afficher l'ID de l'événement extrait
