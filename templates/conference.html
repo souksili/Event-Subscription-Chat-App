@@ -3,41 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conférence Vidéo - Événement {{ event_id }}</title>
+    <title>Créer une conférence Jitsi</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            justify-content: center;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 20px;
         }
-
-        iframe {
-            width: 80%;
-            height: 80%;
-            border: none;
-            border-radius: 10px;
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
         }
-
         h1 {
-            margin: 20px 0;
-            color: #4CAF50;
+            color: #1a73e8;
+        }
+        .btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #005cbf;
         }
     </style>
 </head>
 <body>
-    <h1>Conférence Vidéo - Événement {{ event_id }}</h1>
-
-    <iframe src="https://meet.jit.si/event-{{ event_id }}" allow="camera; microphone; fullscreen; display-capture"></iframe>
+    <div class="container">
+        <h1>Créer une conférence Jitsi</h1>
+        <p>Cliquez sur le bouton ci-dessous pour créer une nouvelle conférence Jitsi où vous pouvez rejoindre immédiatement, sans hôte.</p>
+        <a href="#" id="startConference" class="btn">Démarrer la conférence</a>
+    </div>
 
     <script>
-        // Assurez-vous que l'iframe est correctement chargé
-        console.log("Chargement de la conférence pour l'événement {{ event_id }}");
+        document.getElementById('startConference').addEventListener('click', function(event) {
+            event.preventDefault();
+            // Générer une salle unique
+            const roomName = 'room-' + Math.random().toString(36).substring(2, 10);
+            const url = `https://meet.jit.si/${roomName}`;
+            // Ouvrir la conférence dans une nouvelle fenêtre
+            window.open(url, '_blank');
+        });
     </script>
 </body>
 </html>
