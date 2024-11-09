@@ -49,20 +49,20 @@
         document.getElementById('startConference').addEventListener('click', function(event) {
             event.preventDefault();
             
-            // Extraire l'ID de l'événement de l'URL
+            // Extraire l'ID de l'événement de l'URL actuelle
             const urlParams = window.location.pathname.split('/');
-            const eventId = urlParams[ urlParams.length - 2 ]; // Récupère l'ID avant le dernier segment après "confirm"
+            const eventId = urlParams[urlParams.length - 2]; // L'ID est juste avant le dernier segment
 
-            if (!eventId) {
-                alert("ID de l'événement manquant.");
-                console.error("Erreur : ID de l'événement manquant.");
+            if (!eventId || isNaN(eventId)) {
+                alert("ID de l'événement manquant ou invalide.");
+                console.error("Erreur : ID de l'événement manquant ou invalide.");
                 return;
             }
 
-            // Créer un nom de salle basé sur l'ID de l'événement
+            // Créer un nom de salle unique basé sur l'ID de l'événement
             const roomName = `event-${eventId}`;
 
-            // Générer l'URL de la conférence avec le nom de la salle
+            // Générer l'URL de la conférence Jitsi avec ce nom de salle
             const url = `https://meet.jit.si/${roomName}`;
 
             // Ouvrir la conférence dans une nouvelle fenêtre
