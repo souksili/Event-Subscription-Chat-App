@@ -64,13 +64,13 @@
     <script>
         // Fonction pour démarrer la conférence avec un ID d'événement
         function startConference() {
-            // Extraire l'identifiant de l'événement depuis l'URL (ex: event ID 34)
+            // Récupérer l'ID de l'événement depuis l'URL
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('eventId');  // Exemple : eventId=34
 
             if (!eventId) {
                 alert("ID de l'événement manquant.");
-                return;  // Retourner ici est valide car cela arrête l'exécution de la fonction si l'ID est manquant
+                return;  // Retourner ici arrête l'exécution de la fonction si l'ID est manquant
             }
 
             // Créer le nom de la salle basé sur l'ID de l'événement
