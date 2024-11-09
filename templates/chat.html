@@ -41,14 +41,14 @@
 <body>
     <div class="container">
         <h1>Créer une conférence Jitsi</h1>
-        <p>Cliquez sur le bouton ci-dessous pour créer une nouvelle conférence Jitsi où vous pouvez rejoindre immédiatement, sans hôte.</p>
+        <p>Cliquez sur le bouton ci-dessous pour rejoindre la salle d'attente de la conférence Jitsi.</p>
         
         <!-- Le bouton "Je suis hôte" est contenu dans ce div, qui sera caché pour les utilisateurs non autorisés -->
         <div id="hostButtonContainer" style="display: none;">
             <a href="#" id="startAsHost" class="btn">Je suis hôte</a>
         </div>
 
-        <p>Cliquez sur le bouton ci-dessous pour rejoindre une conférence sans hôte (si vous n'êtes pas autorisé à être hôte).</p>
+        <p>Cliquez sur le bouton ci-dessous pour rejoindre la conférence.</p>
         <a href="#" id="startConference" class="btn">Démarrer la conférence</a>
     </div>
 
@@ -72,7 +72,7 @@
         // Vérifier dès le chargement de la page si l'utilisateur est autorisé à être hôte
         window.onload = checkIfUserIsHostAuthorized;
 
-        // Lancer la conférence pour l'utilisateur qui n'est pas l'hôte
+        // Lancer la conférence pour l'utilisateur (tous les utilisateurs peuvent rejoindre la conférence)
         document.getElementById('startConference').addEventListener('click', function(event) {
             event.preventDefault();
             
