@@ -3,71 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer une conférence Jitsi</title>
+    <title>Chat - Événement {{ event_id }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9ecef;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            margin: auto;
-        }
-        h1 {
-            color: #1a73e8;
-        }
-        .btn {
-            background-color: #1a73e8;
+
+        header {
+            background-color: #4CAF50;
             color: white;
-            padding: 15px 30px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-        .btn:hover {
-            background-color: #005cbf;
+
+        #messages {
+            background: white;
+            border-radius: 8px;
+            height: 300px;
+            overflow-y: auto;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+        }
+
+        #message-form {
+            display: flex;
+            padding: 15px;
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        #message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #message-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 20px;
+            line-height: 1.5;
+            transition: background-color 0.3s;
+        }
+
+        .message.own {
+            background-color: #e0ffe0; /* Vert clair pour les messages de l'utilisateur */
+            align-self: flex-end; /* Alignement à droite pour l'utilisateur */
+        }
+
+        .message.other {
+            background-color: #f0f0f0; /* Gris clair pour les messages des autres */
+        }
+
+        #emoji-button {
+            padding: 10px;
+            border-radius: 20px;
+            background-color: transparent;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #emoji-button:hover {
+            background-color: #f1f1f1;
+        }
+
+        #emoji-picker {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            margin-top: -130px; /* Ajustement pour placer le sélecteur d'emojis au-dessus du bouton */
+            left: 0; /* Alignement à gauche */
+        }
+
+        .emoji {
+            cursor: pointer;
+            margin: 5px;
+            font-size: 24px;
+            transition: transform 0.2s;
+        }
+
+        .emoji:hover {
+            transform: scale(1.2);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Créer une conférence Jitsi</h1>
-        <p>Cliquez sur le bouton ci-dessous pour créer une nouvelle conférence Jitsi où vous pouvez rejoindre immédiatement, sans hôte.</p>
-        <a href="#" id="startConference" class="btn">Démarrer la conférence</a>
+    <header>
+        <h1>Chat pour l'Événement {{ event_id }}</h1>
+    </header>
+    <div id="messages">
+        {% for message in messages %}
+            <div class="message other">{{ message.content }}</div>
+        {% endfor %}
     </div>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Votre message" required aria-label="Champ de message">
+        <button type="button" id="emoji-button" aria-label="Sélecteur d'emojis">😊</button>
+        <button type="submit">Envoyer</button>
+        <div id="emoji-picker" aria-label="Sélecteur d'emojis">
+            <span class="emoji">😀</span>
+            <span class="emoji">😁</span>
+            <span class="emoji">😂</span>
+            <span class="emoji">🤣</span>
+            <span class="emoji">😃</span>
+            <span class="emoji">😄</span>
+            <span class="emoji">😅</span>
+            <span class="emoji">😆</span>
+            <span class="emoji">😉</span>
+            <span class="emoji">😊</span>
+            <span class="emoji">😋</span>
+            <span class="emoji">😎</span>
+            <span class="emoji">😍</span>
+            <span class="emoji">😘</span>
+            <span class="emoji">😗</span>
+            <span class="emoji">😙</span>
+            <span class="emoji">😚</span>
+            <span class="emoji">😇</span>
+            <span class="emoji">😐</span>
+            <span class="emoji">😑</span>
+            <span class="emoji">😶</span>
+            <span class="emoji">🙄</span>
+            <span class="emoji">😏</span>
+            <span class="emoji">😣</span>
+            <span class="emoji">😥</span>
+            <span class="emoji">😮</span>
+            <span class="emoji">🤔</span>
+            <span class="emoji">🤭</span>
+            <span class="emoji">🤫</span>
+            <span class="emoji">😱</span>
+            <span class="emoji">😨</span>
+            <span class="emoji">😰</span>
+            <span class="emoji">😯</span>
+            <span class="emoji">😦</span>
+            <span class="emoji">😮</span>
+            <span class="emoji">😬</span>
+            <span class="emoji">🤯</span>
+            <span class="emoji">😵</span>
+            <span class="emoji">🥴</span>
+            <span class="emoji">😕</span>
+            <span class="emoji">😟</span>
+            <span class="emoji">😮‍💨</span>
+            <span class="emoji">😤</span>
+            <span class="emoji">😢</span>
+            <span class="emoji">😭</span>
+            <span class="emoji">😤</span>
+            <span class="emoji">😠</span>
+            <span class="emoji">😡</span>
+            <span class="emoji">🤬</span>
+            <span class="emoji">🥵</span>
+            <span class="emoji">🥶</span>
+            <span class="emoji">😳</span>
+            <span class="emoji">😵‍💫</span>
+            <span class="emoji">😈</span>
+            <span class="emoji">👿</span>
+            <span class="emoji">👹</span>
+            <span class="emoji">👺</span>
+            <span class="emoji">💀</span>
+            <span class="emoji">👻</span>
+            <span class="emoji">👽</span>
+            <span class="emoji">🎃</span>
+            <span class="emoji">👑</span>
+            <span class="emoji">🦄</span>
+        </div>
+    </form>
 
     <script>
-        document.getElementById('startConference').addEventListener('click', function(event) {
+        // Obtenir l'URL de base et s'assurer qu'elle utilise HTTPS
+        const baseURL = '{{ request.host_url }}'.replace(/^http:/, 'https:').replace(/\/$/, ''); // Remplace http par https et enlève le slash final s'il existe
+
+        // Connexion à Socket.IO avec l'URL de base
+        const socket = io.connect(baseURL);
+
+        const eventId = '{{ event_id }}';
+        const accessCode = getCookie('access_code'); // Fonction pour récupérer le cookie
+
+        // Fonction pour obtenir le cookie par son nom
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            return parts.length === 2 ? parts.pop().split(';').shift() : null;
+        }
+
+        // Événement lors de la soumission du formulaire
+        document.getElementById('message-form').onsubmit = function(event) {
             event.preventDefault();
-            
-            // Extraire l'ID de l'événement de l'URL actuelle
-            const urlParams = window.location.pathname.split('/');
-            const eventId = urlParams[urlParams.length - 1]; // L'ID est le dernier segment de l'URL
+            const messageInput = document.getElementById('message-input');
+            const messageContent = messageInput.value.trim(); // Utilisation de trim() pour éviter les messages vides
 
-            if (!eventId || isNaN(eventId)) {
-                alert("ID de l'événement manquant ou invalide.");
-                console.error("Erreur : ID de l'événement manquant ou invalide.");
-                return;
+            if (messageContent) {
+                // Envoi du message au serveur avec le code d'accès
+                socket.emit('send_message', {
+                    event_id: eventId,
+                    message: messageContent,
+                    access_code: accessCode
+                });
+
+                messageInput.value = ''; // Réinitialiser le champ de message
             }
+        };
 
-            // Créer un nom de salle unique basé sur l'ID de l'événement
-            const roomName = `event-${eventId}`;
-
-            // Générer l'URL de la conférence Jitsi avec ce nom de salle
-            const url = `https://meet.jit.si/${roomName}`;
-
-            // Ouvrir la conférence dans une nouvelle fenêtre
-            window.open(url, '_blank');
+        // Écouter les messages reçus
+        socket.on('receive_message', function(data) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message other'; // Classe pour les messages des autres
+            messageDiv.textContent = data.message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Faire défiler vers le bas
         });
+
+        // Rejoindre la salle de chat
+        socket.emit('join', { event_id: eventId });
+
+        // Gestion du sélecteur d'emojis
+        const emojiButton = document.getElementById('emoji-button');
+        const emojiPicker = document.getElementById('emoji-picker');
+
+        emojiButton.onclick = function() {
+            emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+        };
+
+        // Sélection des emojis
+        document.querySelectorAll('.emoji').forEach(emoji => {
+            emoji.onclick = function() {
+                const messageInput = document.getElementById('message-input');
+                messageInput.value += emoji.textContent; // Ajoute l'emoji au champ de saisie
+                emojiPicker.style.display = 'none'; // Masque le sélecteur après sélection
+            };
+        });
+
+        // Masquer le sélecteur si l'utilisateur clique ailleurs
+        window.onclick = function(event) {
+            if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) {
+                emojiPicker.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
