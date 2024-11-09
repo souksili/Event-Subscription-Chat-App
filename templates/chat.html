@@ -62,29 +62,29 @@
     <!-- Inclusion de l'API Jitsi -->
     <script src="https://meet.jit.si/external_api.js"></script>
     <script>
-        // Extraire l'identifiant de l'événement depuis l'URL (ex: event ID 34)
-        const urlParams = new URLSearchParams(window.location.search);
-        const eventId = urlParams.get('eventId');  // Exemple : eventId=34
-
-        if (!eventId) {
-            alert("ID de l'événement manquant.");
-            return;
-        }
-
-        // Créer le nom de la salle basé sur l'ID de l'événement
-        const roomName = `event-${eventId}`;
-
-        // Génère le lien d'invitation pour les participants
-        const inviteLink = `https://meet.jit.si/${roomName}`;
-
-        // Mettre à jour le lien dans la page HTML
-        document.getElementById("invite-link").href = inviteLink;
-        document.getElementById("invite-link").innerText = inviteLink;
-
-        let api; // Instance de JitsiMeetExternalAPI
-
-        // Fonction pour démarrer la conférence
+        // Fonction pour démarrer la conférence avec un ID d'événement
         function startConference() {
+            // Extraire l'identifiant de l'événement depuis l'URL (ex: event ID 34)
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId');  // Exemple : eventId=34
+
+            if (!eventId) {
+                alert("ID de l'événement manquant.");
+                return;  // Retourner ici est valide car cela arrête l'exécution de la fonction si l'ID est manquant
+            }
+
+            // Créer le nom de la salle basé sur l'ID de l'événement
+            const roomName = `event-${eventId}`;
+
+            // Générer le lien d'invitation pour les participants
+            const inviteLink = `https://meet.jit.si/${roomName}`;
+
+            // Mettre à jour le lien dans la page HTML
+            document.getElementById("invite-link").href = inviteLink;
+            document.getElementById("invite-link").innerText = inviteLink;
+
+            let api; // Instance de JitsiMeetExternalAPI
+
             const domain = "meet.jit.si";
             const options = {
                 roomName: roomName,  // Utilisation du même nom de salle pour tous les participants
