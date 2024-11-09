@@ -101,9 +101,11 @@
                 height: 700,
                 parentNode: document.querySelector("#meet"),
                 configOverwrite: { 
-                    prejoinPageEnabled: false,  // Désactiver la page pré-rejoindre
-                    startWithAudioMuted: false, // Audio allumé par défaut
-                    startWithVideoMuted: false  // Vidéo allumée par défaut
+                    prejoinPageEnabled: false, // Désactiver la page pré-rejoindre
+                    startWithAudioMuted: true,  // Démarrer la réunion avec l'audio coupé
+                    startWithVideoMuted: true,  // Démarrer la réunion avec la vidéo coupée
+                    enableNoAudioDetection: false, // Désactiver la détection d'absence d'audio
+                    enableNoVideoDetection: false  // Désactiver la détection d'absence de vidéo
                 },
                 interfaceConfigOverwrite: {
                     filmStripOnly: false,  // Permet d'afficher les participants à côté de la vidéo
