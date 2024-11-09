@@ -68,16 +68,26 @@
             const pathSegments = window.location.pathname.split('/'); // Divise le chemin de l'URL en segments
             const eventId = pathSegments[3]; // Le deuxième chiffre (ID de l'événement) se trouve ici
 
+            // Log: Afficher l'ID de l'événement extrait
+            console.log("ID de l'événement extrait : " + eventId);
+
             if (!eventId) {
                 alert("ID de l'événement manquant.");
+                console.error("Erreur : ID de l'événement manquant.");
                 return;  // Retourner ici arrête l'exécution de la fonction si l'ID est manquant
             }
 
             // Créer le nom de la salle basé sur l'ID de l'événement
             const roomName = `event-${eventId}`;
 
+            // Log: Afficher le nom de la salle généré
+            console.log("Nom de la salle généré : " + roomName);
+
             // Générer le lien d'invitation pour les participants
             const inviteLink = `https://meet.jit.si/${roomName}`;
+
+            // Log: Afficher le lien d'invitation généré
+            console.log("Lien d'invitation généré : " + inviteLink);
 
             // Mettre à jour le lien dans la page HTML
             document.getElementById("invite-link").href = inviteLink;
@@ -108,16 +118,24 @@
                 }
             };
 
+            // Log: Afficher les options passées à l'API Jitsi
+            console.log("Options de configuration de Jitsi : ", options);
+
             // Créer une instance de JitsiMeetExternalAPI
             api = new JitsiMeetExternalAPI(domain, options);
 
+            // Log: Vérification que l'instance API est correctement créée
+            console.log("Instance de JitsiMeetExternalAPI créée : ", api);
+
             // Événements pour gérer les actions pendant la conférence
             api.addEventListener("videoConferenceJoined", (event) => {
+                // Log: Quand un participant rejoint la salle
                 console.log("Un participant a rejoint la salle :", event.roomName);
                 alert("Vous avez rejoint la conférence.");
             });
 
             api.addEventListener("videoConferenceLeft", () => {
+                // Log: Quand un participant quitte la salle
                 console.log("Un participant a quitté la salle");
                 alert("Vous avez quitté la conférence.");
                 document.getElementById("meet").innerHTML = ""; // Effacer la conférence à la sortie
