@@ -256,6 +256,7 @@
         };
 
         socket.on('receive_message', function(data) {
+            console.log(data.sender_initial)
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${data.is_own ? 'own' : ''}`;
