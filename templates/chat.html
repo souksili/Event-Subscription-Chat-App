@@ -342,6 +342,9 @@
                     }
                     return response.json();
                 })
+                .then(responseData => {
+                    window.location.href = `/room/${eventId}/`;
+                })
                 .catch(error => {
                     console.error('Erreur:', error);
                     alert('Erreur: ' + error.message);
