@@ -323,32 +323,11 @@
                 const muteAudio = false;
                 const muteVideo = false;
                 
-                const requestData = {
-                    display_name: fullName,
-                    mute_audio: muteAudio,
-                    mute_video: muteVideo
-                };
+                // Construire l'URL avec les paramètres dans la chaîne de requête
+                const redirectUrl = `/room/${eventId}/checkpoint/?display_name=${encodeURIComponent(fullName)}&mute_audio=${encodeURIComponent(muteAudio)}&mute_video=${encodeURIComponent(muteVideo)}`;
 
-            // Rediriger immédiatement vers la page
-            window.location.href = `https://realtimestream.onrender.com/room/${eventId}/checkpoint/`; 
-
-            // Envoyer la requête fetch en arrière-plan
-            fetch(`https://realtimestream.onrender.com/room/${eventId}/checkpoint/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur lors de l\'enregistrement des informations de la salle');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur: ' + error.message);
-            });
+                // Rediriger vers l'URL construite
+                window.location.href = redirectUrl; 
             }
         } catch (error) {
             console.error('Erreur JSON:', error);
