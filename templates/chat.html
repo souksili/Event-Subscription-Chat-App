@@ -226,6 +226,7 @@
                 <div class="avatar">{{ message.sender.full_name[0] if message.sender.full_name else 'A' }}</div>
                 <div class="bubble">
                     {{ message.content }}
+                    <span class="timestamp">{{ message.timestamp }}</span>
                 </div>
             </div>
         {% endfor %}
@@ -267,28 +268,39 @@
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${data.is_own ? 'own' : ''}`;
+            const timestamp = new Date(data.timestamp).toLocaleTimeString(); // Format du temps
             messageDiv.innerHTML = `
                 <div class="avatar">${data.sender_initial}</div>
                 <div class="bubble">
                     ${data.message}
-                    <span class="timestamp">${data.timestamp}</span>
+                    <span class="timestamp">${timestamp}</span>
                 </div>
             `;
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
 
-        document.getElementById('emoji-button').onclick = function() {
-            document.getElementById('emoji-picker').classList.toggle('show');
+        socket.emit('join', { event_id: eventId });
+
+        const emojiButton = document.getElementById('emoji-button');
+        const emojiPicker = document.getElementById('emoji-picker');
+        emojiButton.onclick = function() {
+            emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
         };
 
         document.querySelectorAll('.emoji').forEach(emoji => {
             emoji.onclick = function() {
                 const messageInput = document.getElementById('message-input');
                 messageInput.value += emoji.textContent;
+                emojiPicker.style.display = 'none';
             };
         });
 
+        window.onclick = function(event) {
+            if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) {
+                emojiPicker.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
