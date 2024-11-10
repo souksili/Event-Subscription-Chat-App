@@ -345,7 +345,6 @@
                     if (!response.ok) {
                         throw new Error('Erreur lors de l\'enregistrement des informations de la salle');
                     }
-                    return response.json(); // Assuming a JSON response here
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
