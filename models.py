@@ -17,10 +17,14 @@ class Event(db.Model):
 
 class Subscriber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(1200), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
     confirmed = db.Column(db.Boolean, default=False)
+    full_name = db.Column(db.String(255), nullable=False)
+    access_code = db.Column(db.String(6), unique=True, nullable=True)
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('subscriber.id'), nullable=False)
+    sender = db.relationship('Subscriber', backref=db.backref('messages', lazy=True))

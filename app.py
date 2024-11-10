@@ -108,12 +108,16 @@ def index():
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.json.get('email')
+    full_name = request.json.get('full_name')
     title = request.json.get('title')
     description = request.json.get('description')
 
     if not email or not is_valid_email(email):
         return jsonify({'error': 'Email invalide'}), 400
-    
+
+    if not full_name:
+        return jsonify({'error': 'Nom complet requis'}), 400
+
     if not title or not description:
         return jsonify({'error': 'Titre et description requis'}), 400
 
@@ -125,7 +129,7 @@ def subscribe():
 
     subscriber = Subscriber.query.filter_by(email=email).first()
     if not subscriber:
-        subscriber = Subscriber(email=email, access_code=generate_access_code())
+        subscriber = Subscriber(email=email, full_name=full_name, access_code=generate_access_code())  # Enregistrer le nom complet
         db.session.add(subscriber)
 
     if event_id in [e.id for e in subscriber.events]:
@@ -231,11 +235,11 @@ def handle_send_message(data):
         emit('receive_message', {'message': 'Accès refusé'}, room=request.sid)
         return
 
-    message = Message(event_id=event_id, content=message_content)
+    message = Message(event_id=event_id, content=message_content, sender=subscriber)
     db.session.add(message)
     db.session.commit()
     
-    emit('receive_message', {'message': message_content}, room=event_id)
+    emit('receive_message', {'message': message_content, 'sender_initial': subscriber.full_name[0]}, room=event_id)
 
 if __name__ == '__main__':
     with app.app_context():
