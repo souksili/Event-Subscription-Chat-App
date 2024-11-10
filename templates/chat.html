@@ -212,11 +212,10 @@
     </header>
     <div id="messages">
         {% for message in messages %}
-            <div class="message {% if message.is_own %}own{% endif %}">
-                <div class="avatar">{{ message.sender_initial }}</div>
+            <div class="message">
+                <div class="avatar">{{ message.sender.full_name[0] if message.sender.full_name else 'A' }}</div>
                 <div class="bubble">
                     {{ message.content }}
-                    <span class="timestamp">{{ message.timestamp }}</span>
                 </div>
             </div>
         {% endfor %}

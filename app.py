@@ -221,6 +221,19 @@ def chat(event_id):
 @socketio.on('join')
 def on_join(data):
     join_room(data['event_id'])
+    access_code = data.get('access_code')
+    event_id = data['event_id']
+
+    # Récupérer l'utilisateur à partir de l'access_code
+    subscriber = Subscriber.query.filter(
+        Subscriber.access_code == access_code,
+        Subscriber.events.any(id=event_id),
+        Subscriber.confirmed == True
+    ).first()
+
+    if subscriber:
+        # Envoyer l'initiale et d'autres données si nécessaire
+        emit('join_message', {'sender_initial': subscriber.full_name[0] if subscriber.full_name else 'A'}, room=event_id)
 
 @socketio.on('send_message')
 def handle_send_message(data):
@@ -238,11 +251,16 @@ def handle_send_message(data):
         emit('receive_message', {'message': 'Accès refusé'}, room=request.sid)
         return
 
+    # Récupérer l'initiale du nom complet
+    sender_initial = subscriber.full_name[0] if subscriber.full_name else 'A'  # Utiliser 'A' par défaut si nom vide
+
+    # Sauvegarder le message
     message = Message(event_id=event_id, content=message_content, sender=subscriber)
     db.session.add(message)
     db.session.commit()
-    
-    emit('receive_message', {'message': message_content, 'sender_initial': subscriber.full_name[0]}, room=event_id)
+
+    # Émettre l'événement 'receive_message' avec l'initiale
+    emit('receive_message', {'message': message_content, 'sender_initial': sender_initial}, room=event_id)
 
 if __name__ == '__main__':
     with app.app_context():
