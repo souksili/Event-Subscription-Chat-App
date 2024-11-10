@@ -278,18 +278,13 @@
     <!-- Conteneur de l'iframe -->
     <div id="iframe-container">
         <button id="close-iframe" onclick="closeStream()">×</button>
-        <iframe src="https://realtimestream.onrender.com/"
-                frameborder="0"
-                allow="autoplay; encrypted-media; fullscreen; picture-in-picture; accelerometer; autoplay; clipboard-write; geolocation; microphone; camera"
-                style="width: 100%; height: 100%;">
-        </iframe>
+        <iframe src="{{ stream_url }}" frameborder="0"></iframe>
     </div>
 
     <script>
         function openStream() {
             const iframeContainer = document.getElementById('iframe-container');
             iframeContainer.style.left = '0';  // Faire glisser l'iframe depuis la gauche
-            setTimeout(() => document.getElementById('message-input').focus(), 500); // Mettre le focus après l'ouverture
         }
 
         function closeStream() {
