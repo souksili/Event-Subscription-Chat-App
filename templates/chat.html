@@ -322,9 +322,7 @@
                 const fullName = data.full_name;
                 const muteAudio = false;
                 const muteVideo = false;
-
-            // Rediriger immédiatement vers la page
-            window.location.href = `https://realtimestream.onrender.com/room/${eventId}/checkpoint/`; 
+                window.location.href = `https://realtimestream.onrender.com/room/${eventId}/checkpoint/`; 
             }
         } catch (error) {
             console.error('Erreur JSON:', error);
@@ -336,15 +334,6 @@
         alert('Erreur lors de la récupération des informations de l\'événement');
     });
     });
-
-    document.getElementById('access-stream-btn').addEventListener('click', function(event) {
-            event.preventDefault();
-            
-            const eventId = '{{ event_id }}';
-            const iframe = document.getElementById('stream-iframe');
-            iframe.src = `https://realtimestream.onrender.com/room/${eventId}/checkpoint/`;
-            iframe.style.display = 'block'; // Affiche l'iframe une fois l'URL définie
-        });
 
         function getCookie(name) {
             const value = `; ${document.cookie}`;
