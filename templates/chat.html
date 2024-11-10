@@ -11,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f7f9fc;
@@ -278,7 +278,7 @@
     <!-- Conteneur de l'iframe -->
     <div id="iframe-container">
         <button id="close-iframe" onclick="closeStream()">×</button>
-        <iframe src="https://realtimestream.onrender.com/" frameborder="0"></iframe>
+        <iframe id="stream-frame" src="https://realtimestream.onrender.com/" frameborder="0"></iframe>
     </div>
 
     <script>
@@ -286,43 +286,37 @@
         const eventId = '{{ event_id }}';
         const accessCode = '{{ access_code }}';
 
+        socket.emit('join', { eventId, accessCode });
+
+        // Fonction pour ouvrir le stream
         function openStream() {
-            const iframeContainer = document.getElementById('iframe-container');
-            iframeContainer.style.left = '0';  // Ouvrir l'iframe
+            document.getElementById('iframe-container').style.left = '0';
         }
 
+        // Fonction pour fermer le stream
         function closeStream() {
-            const iframeContainer = document.getElementById('iframe-container');
-            iframeContainer.style.left = '-100%';  // Fermer l'iframe
+            document.getElementById('iframe-container').style.left = '-100%';
         }
 
-        document.getElementById('message-form').onsubmit = function(event) {
-            event.preventDefault();
-            const messageInput = document.getElementById('message-input');
-            const messageContent = messageInput.value.trim();
-            if (messageContent) {
-                socket.emit('send_message', { event_id: eventId, message: messageContent, access_code: accessCode });
-                messageInput.value = '';
+        // Gestion du focus dans l'iframe via postMessage
+        const iframe = document.getElementById("stream-frame");
+        window.addEventListener("message", function(event) {
+            if (event.origin !== "https://realtimestream.onrender.com") return; // Vérifier la source du message
+            if (event.data.action === "focusInput") {
+                const inputElement = iframe.contentWindow.document.getElementById("input-element-id"); // Remplacez par l'ID réel
+                if (inputElement) inputElement.focus();
             }
-        };
-
-        socket.on('receive_message', function(data) {
-            const messagesDiv = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${data.is_own ? 'own' : ''}`;
-            const timestamp = new Date(data.timestamp).toLocaleTimeString(); // Format du temps
-            messageDiv.innerHTML = `
-                <div class="avatar">${data.sender_initial}</div>
-                <div class="bubble">
-                    ${data.message}
-                    <span class="timestamp">${timestamp}</span>
-                </div>
-            `;
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
 
-        socket.emit('join', { event_id: eventId });
+        // Ajouter un message dans le formulaire de chat
+        document.getElementById('message-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = document.getElementById('message-input').value.trim();
+            if (message) {
+                socket.emit('chat_message', { eventId, message });
+                document.getElementById('message-input').value = '';
+            }
+        });
     </script>
 </body>
 </html>
