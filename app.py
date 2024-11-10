@@ -35,8 +35,8 @@ event_subscriber = db.Table('event_subscriber',
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(10000), nullable=False)
+    description = db.Column(db.String(25500), nullable=False)
     subscribers = db.relationship('Subscriber', secondary=event_subscriber, backref=db.backref('events', lazy='dynamic'))
     messages = db.relationship('Message', backref='event', lazy=True)
 
