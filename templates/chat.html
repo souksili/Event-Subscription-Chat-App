@@ -311,24 +311,29 @@
 
     // Effectuer une requête pour obtenir les informations du flux (stream) pour cet événement
     fetch(`/get_stream_info?event_id=${eventId}&access_code=${accessCode}`)
-        .then(response => response.json())
-        .then(data => {
+    .then(response => {
+        // Log the response to see what is actually returned
+        console.log(response);
+        return response.text();  // Use .text() to inspect raw HTML
+    })
+    .then(text => {
+        try {
+            const data = JSON.parse(text);  // Try to parse the response as JSON
             if (data.error) {
                 console.error('Erreur:', data.error);
             } else {
-                // On récupère les informations de l'utilisateur
+                // Process the data here
                 const fullName = data.full_name;
-                const muteAudio = "false";  // Par défaut, l'audio n'est pas muet
-                const muteVideo = "false"; // Par défaut, la vidéo n'est pas muette
-
-                // Créer un objet avec les données à envoyer
+                const muteAudio = "false";
+                const muteVideo = "false";
+                
+                // Send the data to the server
                 const requestData = {
                     display_name: fullName,
                     mute_audio: muteAudio,
                     mute_video: muteVideo
                 };
 
-                // Effectuer un appel POST pour enregistrer ces informations dans la session
                 fetch(`https://realtimestream.onrender.com/room/${eventId}/checkpoint/`, {
                     method: 'POST',
                     headers: {
@@ -340,21 +345,23 @@
                     if (!response.ok) {
                         throw new Error('Erreur lors de l\'enregistrement des informations de la salle');
                     }
-                    return response.json();
-                })
-                .then(responseData => {
-                    window.location.href = `/room/${eventId}/`;
+                    return response.json(); // Assuming a JSON response here
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
                     alert('Erreur: ' + error.message);
                 });
             }
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'appel API:', error);
-            alert('Erreur lors de la récupération des informations de l\'événement');
-        });
+        } catch (error) {
+            // If JSON parsing fails, log the raw response text
+            console.error('Erreur JSON:', error);
+            console.log('Réponse brute:', text);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de l\'appel API:', error);
+        alert('Erreur lors de la récupération des informations de l\'événement');
+    });
     });
 
         function getCookie(name) {
