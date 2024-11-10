@@ -278,18 +278,22 @@
     <!-- Conteneur de l'iframe -->
     <div id="iframe-container">
         <button id="close-iframe" onclick="closeStream()">×</button>
-        <iframe src="{{ stream_url }}" frameborder="0"></iframe>
+        <iframe src="https://realtimestream.onrender.com/" frameborder="0"></iframe>
     </div>
 
     <script>
+        const socket = io.connect();  // Connexion à Socket.io
+        const eventId = '{{ event_id }}';
+        const accessCode = '{{ access_code }}';
+
         function openStream() {
             const iframeContainer = document.getElementById('iframe-container');
-            iframeContainer.style.left = '0';  // Faire glisser l'iframe depuis la gauche
+            iframeContainer.style.left = '0';  // Ouvrir l'iframe
         }
 
         function closeStream() {
             const iframeContainer = document.getElementById('iframe-container');
-            iframeContainer.style.left = '-100%';  // Replacer l'iframe en dehors de l'écran
+            iframeContainer.style.left = '-100%';  // Fermer l'iframe
         }
 
         document.getElementById('message-form').onsubmit = function(event) {
