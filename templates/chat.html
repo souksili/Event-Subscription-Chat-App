@@ -23,6 +23,27 @@
             padding: 15px;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .stream-button {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .stream-button:hover {
+            background-color: #e64a19;
         }
 
         #messages {
@@ -139,6 +160,7 @@
 <body>
     <header>
         <h1>Chat pour l'Événement {{ event_id }}</h1>
+        <a href="{{ stream_url }}" class="stream-button" target="_blank">Accéder au Stream</a> <!-- Bouton d'accès au stream -->
     </header>
     <div id="messages">
         {% for message in messages %}
@@ -217,54 +239,46 @@
     </form>
 
     <script>
-        // Obtenir l'URL de base et s'assurer qu'elle utilise HTTPS
-        const baseURL = '{{ request.host_url }}'.replace(/^http:/, 'https:').replace(/\/$/, ''); // Remplace http par https et enlève le slash final s'il existe
+        const baseURL = '{{ request.host_url }}'.replace(/^http:/, 'https:').replace(/\/$/, ''); // Remplace http par https
 
-        // Connexion à Socket.IO avec l'URL de base
         const socket = io.connect(baseURL);
 
         const eventId = '{{ event_id }}';
-        const accessCode = getCookie('access_code'); // Fonction pour récupérer le cookie
+        const accessCode = getCookie('access_code'); 
 
-        // Fonction pour obtenir le cookie par son nom
         function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             return parts.length === 2 ? parts.pop().split(';').shift() : null;
         }
 
-        // Événement lors de la soumission du formulaire
         document.getElementById('message-form').onsubmit = function(event) {
             event.preventDefault();
             const messageInput = document.getElementById('message-input');
-            const messageContent = messageInput.value.trim(); // Utilisation de trim() pour éviter les messages vides
+            const messageContent = messageInput.value.trim();
 
             if (messageContent) {
-                // Envoi du message au serveur avec le code d'accès
                 socket.emit('send_message', {
                     event_id: eventId,
                     message: messageContent,
                     access_code: accessCode
                 });
 
-                messageInput.value = ''; // Réinitialiser le champ de message
+                messageInput.value = '';
             }
         };
 
-        // Écouter les messages reçus
         socket.on('receive_message', function(data) {
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = 'message other'; // Classe pour les messages des autres
+            messageDiv.className = 'message other';
             messageDiv.textContent = data.message;
             messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Faire défiler vers le bas
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
 
-        // Rejoindre la salle de chat
         socket.emit('join', { event_id: eventId });
 
-        // Gestion du sélecteur d'emojis
         const emojiButton = document.getElementById('emoji-button');
         const emojiPicker = document.getElementById('emoji-picker');
 
@@ -272,16 +286,14 @@
             emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
         };
 
-        // Sélection des emojis
         document.querySelectorAll('.emoji').forEach(emoji => {
             emoji.onclick = function() {
                 const messageInput = document.getElementById('message-input');
-                messageInput.value += emoji.textContent; // Ajoute l'emoji au champ de saisie
-                emojiPicker.style.display = 'none'; // Masque le sélecteur après sélection
+                messageInput.value += emoji.textContent;
+                emojiPicker.style.display = 'none';
             };
         });
 
-        // Masquer le sélecteur si l'utilisateur clique ailleurs
         window.onclick = function(event) {
             if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) {
                 emojiPicker.style.display = 'none';
