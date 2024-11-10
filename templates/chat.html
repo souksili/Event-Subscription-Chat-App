@@ -303,28 +303,25 @@
         };
 
         document.getElementById('access-stream-btn').addEventListener('click', function(event) {
-    event.preventDefault();
-    
-    const eventId = '{{ event_id }}';  // Récupération de l'ID de l'événement
-    const accessCode = getCookie('access_code');  // Récupération du code d'accès depuis les cookies (si nécessaire)
-    
-    fetch(`/get_stream_info?event_id=${eventId}&access_code=${accessCode}`)
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            console.error('Erreur:', data.error);
-        } else {
-            // Générer l'URL de la réunion Zoom
-            const zoomUrl = `https://zoom.us/j/${eventId}?pwd=${accessCode}`;
+            event.preventDefault();
             
-            // Ouvrir la réunion Zoom dans un nouvel onglet
-            window.open(zoomUrl, '_blank');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur lors de l\'appel API:', error);
-    });
-    });
+            const eventId = '{{ event_id }}';
+            const accessCode = getCookie('access_code');
+
+            fetch(`/get_stream_info?event_id=${eventId}&access_code=${accessCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Erreur:', data.error);
+                    } else {
+                        console.log('ID de l\'événement:', data.event_id);
+                        console.log('Nom complet de l\'utilisateur:', data.full_name);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de l\'appel API:', error);
+                });
+        });
 
         function getCookie(name) {
             const value = `; ${document.cookie}`;
