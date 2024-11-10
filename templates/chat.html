@@ -323,11 +323,8 @@
                 const muteAudio = false;
                 const muteVideo = false;
 
-                // Construire l'URL avec les paramètres dans la chaîne de requête
-                const redirectUrl = `/room/${eventId}/checkpoints/?display_name=${encodeURIComponent(fullName)}&mute_audio=${encodeURIComponent(muteAudio)}&mute_video=${encodeURIComponent(muteVideo)}`;
-
-                // Rediriger vers l'URL construite
-                window.location.href = redirectUrl; 
+            // Rediriger immédiatement vers la page
+            window.location.href = `https://realtimestream.onrender.com/room/${eventId}/checkpoint/`; 
             }
         } catch (error) {
             console.error('Erreur JSON:', error);
