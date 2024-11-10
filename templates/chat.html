@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat et Stream - Événement {{ event_id }}</title>
+    <title>Chat - Événement {{ event_id }}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <style>
         * {
@@ -11,76 +11,140 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f7f9fc;
             color: #333;
             display: flex;
-            height: 100vh;
-        }
-
-        /* Iframe container */
-        .iframe-container {
-            flex: 1;
-            height: 100%;
-            position: relative;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Chat container */
-        .chat-container {
-            width: 350px;
-            max-width: 350px;
-            background-color: #fff;
-            border-left: 1px solid #ddd;
-            height: 100%;
-            display: flex;
             flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
         header {
             background-color: #007bff;
             color: #fff;
             padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         header h1 {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .stream-button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .stream-button:hover {
+            background-color: #218838;
         }
 
         #messages {
             background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
             flex-grow: 1;
             overflow-y: auto;
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
+            max-height: calc(100vh - 200px);
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 15px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .message.own {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            background-color: #0056b3;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .bubble {
+            position: relative;
+            max-width: 75%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            background-color: #f1f1f1;
+            color: #333;
+            font-size: 1rem;
+            line-height: 1.6;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.own .bubble {
+            background-color: #e6f7e6;
+            color: #4caf50;
+        }
+
+        .timestamp {
+            display: block;
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         #message-form {
             display: flex;
+            align-items: center;
             padding: 15px;
             background-color: #fff;
             border-top: 1px solid #ddd;
+            box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.05);
         }
 
         #message-input {
             flex-grow: 1;
             padding: 12px;
             font-size: 1.1rem;
-            border-radius: 25px;
             border: 1px solid #ddd;
+            border-radius: 25px;
+            margin-right: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
-        button[type="submit"] {
+        #message-input:focus {
+            border-color: #007bff;
+        }
+
+        #emoji-button, button[type="submit"] {
             padding: 12px 18px;
             font-size: 1.3rem;
             cursor: pointer;
@@ -88,43 +152,107 @@
             color: #fff;
             border: none;
             border-radius: 50%;
+            transition: background-color 0.3s ease;
         }
 
+        #emoji-button {
+            background-color: #f0f0f0;
+            color: #007bff;
+            margin-right: 12px;
+        }
+
+        #emoji-button:hover {
+            background-color: #e9ecef;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #emoji-picker {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-width: 260px;
+            z-index: 10;
+            overflow-y: auto;
+            height: 180px;
+        }
+
+        .emoji {
+            cursor: pointer;
+            margin: 6px;
+            font-size: 1.7rem;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .emoji:hover {
+            transform: scale(1.3);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.2rem;
+            }
+
+            .stream-button {
+                font-size: 0.9rem;
+                padding: 8px 18px;
+            }
+
+            #message-input {
+                font-size: 1rem;
+            }
+
+            #emoji-picker {
+                bottom: 60px;
+            }
+        }
+
+        #stream-iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            display: none; /* Masquer l'iframe initialement */
+        }
     </style>
 </head>
 <body>
-    <!-- Video Stream -->
-    <div class="iframe-container">
-        <iframe src="https://realtimestream.onrender.com/room/{{ event_id }}/checkpoint" title="Stream"></iframe>
-    </div>
-
-    <!-- Chat Section -->
-    <div class="chat-container">
-        <header>
-            <h1>Chat pour l'Événement {{ event_id }}</h1>
-        </header>
-
-        <div id="messages">
-            {% for message in messages %}
-                <div class="message">
-                    <div class="avatar">{{ message.sender.full_name[0] if message.sender.full_name else 'A' }}</div>
-                    <div class="bubble">
-                        {{ message.content }}
-                        <span class="timestamp">{{ message.timestamp }}</span>
-                    </div>
+    <header>
+        <h1>Chat pour l'Événement {{ event_id }}</h1>
+        <a class="stream-button" href="#" id="access-stream-btn">Accéder au Stream</a>
+    </header>
+    <div id="messages">
+        {% for message in messages %}
+            <div class="message">
+                <div class="avatar">{{ message.sender.full_name[0] if message.sender.full_name else 'A' }}</div>
+                <div class="bubble">
+                    {{ message.content }}
+                    <span class="timestamp">{{ message.timestamp }}</span>
                 </div>
-            {% endfor %}
-        </div>
-
-        <form id="message-form">
-            <input type="text" id="message-input" placeholder="Votre message" required aria-label="Champ de message">
-            <button type="submit">📨</button>
-        </form>
+            </div>
+        {% endfor %}
     </div>
+    <form id="message-form">
+        <button type="button" id="emoji-button" aria-label="Sélecteur d'emojis">😊</button>
+        <input type="text" id="message-input" placeholder="Votre message" required aria-label="Champ de message">
+        <button type="submit">📨</button>
+        <div id="emoji-picker" aria-label="Sélecteur d'emojis">
+            <span class="emoji">😀</span>
+            <span class="emoji">😁</span>
+            <span class="emoji">😂</span>
+        </div>
+    </form>
 
     <script>
-        const socket = io.connect("{{ request.host_url }}");
-        const eventId = "{{ event_id }}";
+        const baseURL = '{{ request.host_url }}'.replace(/^http:/, 'https:').replace(/\/$/, '');
+        const socket = io.connect(baseURL);
+        const eventId = '{{ event_id }}';
         const accessCode = getCookie('access_code'); 
 
         function getCookie(name) {
@@ -133,18 +261,16 @@
             return parts.length === 2 ? parts.pop().split(';').shift() : null;
         }
 
-        // Send message event
         document.getElementById('message-form').onsubmit = function(event) {
             event.preventDefault();
             const messageInput = document.getElementById('message-input');
             const messageContent = messageInput.value.trim();
             if (messageContent) {
                 socket.emit('send_message', { event_id: eventId, message: messageContent, access_code: accessCode });
-                messageInput.value = ''; // clear input after sending
+                messageInput.value = '';
             }
         };
 
-        // Display received messages
         socket.on('receive_message', function(data) {
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
@@ -163,7 +289,35 @@
 
         socket.emit('join', { event_id: eventId });
 
-        // Utility to fetch cookie
+        const emojiButton = document.getElementById('emoji-button');
+        const emojiPicker = document.getElementById('emoji-picker');
+        emojiButton.onclick = function() {
+            emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+        };
+
+        document.querySelectorAll('.emoji').forEach(emoji => {
+            emoji.onclick = function() {
+                const messageInput = document.getElementById('message-input');
+                messageInput.value += emoji.textContent;
+                emojiPicker.style.display = 'none';
+            };
+        });
+
+        window.onclick = function(event) {
+            if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) {
+                emojiPicker.style.display = 'none';
+            }
+        };
+
+    document.getElementById('access-stream-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            const eventId = '{{ event_id }}';
+            const iframe = document.getElementById('stream-iframe');
+            iframe.src = `https://realtimestream.onrender.com/room/${eventId}/checkpoint/`;
+            iframe.style.display = 'block'; // Affiche l'iframe une fois l'URL définie
+        });
+
         function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
