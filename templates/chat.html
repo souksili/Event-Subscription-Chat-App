@@ -305,41 +305,36 @@
         document.getElementById('access-stream-btn').addEventListener('click', function(event) {
     event.preventDefault();
     
-    // Récupérer l'ID de l'événement et le code d'accès à partir des cookies
-    const eventId = '{{ event_id }}';  // L'ID de l'événement côté serveur
-    const accessCode = getCookie('access_code');  // Fonction qui récupère le code d'accès depuis le cookie
+    const eventId = '{{ event_id }}';
+    const accessCode = getCookie('access_code');
 
-    // Effectuer une requête pour obtenir les informations du flux (stream) pour cet événement
     fetch(`/get_stream_info?event_id=${eventId}&access_code=${accessCode}`)
     .then(response => {
-        // Log the response to see what is actually returned
         console.log(response);
-        return response.text();  // Use .text() to inspect raw HTML
+        return response.text();
     })
     .then(text => {
         try {
-            const data = JSON.parse(text);  // Try to parse the response as JSON
+            const data = JSON.parse(text);
             if (data.error) {
                 console.error('Erreur:', data.error);
             } else {
-                // Process the data here
                 const fullName = data.full_name;
                 const muteAudio = false;
                 const muteVideo = false;
                 
-                // Send the data to the server
                 const requestData = {
                     display_name: fullName,
                     mute_audio: muteAudio,
                     mute_video: muteVideo
                 };
 
-                fetch(`https://realtimestream.onrender.com/room/${eventId}`, {
+                fetch(`https://realtimestream.onrender.com/room/${eventId}/checkpoint/`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/json'
                     },
-                    body: new URLSearchParams(requestData).toString()
+                    body: JSON.stringify(requestData)
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -352,7 +347,6 @@
                 });
             }
         } catch (error) {
-            // If JSON parsing fails, log the raw response text
             console.error('Erreur JSON:', error);
             console.log('Réponse brute:', text);
         }
