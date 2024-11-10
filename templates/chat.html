@@ -278,65 +278,58 @@
     <!-- Conteneur de l'iframe -->
     <div id="iframe-container">
         <button id="close-iframe" onclick="closeStream()">×</button>
-        <iframe id="stream-frame" src="https://realtimestream.onrender.com/" frameborder="0"></iframe>
+        <iframe id="stream-frame" src="https://realtimestream.onrender.com/" frameborder="0" allow="microphone; camera;"></iframe>
     </div>
 
     <script>
-        const socket = io.connect();  // Connexion à Socket.io
-        const eventId = '{{ event_id }}';
-        const accessCode = '{{ access_code }}';
+        const socket = io.connect("https://your-socket-server.com");
 
-        // Fonction pour ouvrir le stream (iframe)
-        function openStream() {
-            const iframeContainer = document.getElementById('iframe-container');
-            iframeContainer.style.left = '0';  // Affiche l'iframe avec une animation
-            requestFocus();  // Demander le focus sur l'input de l'iframe
-        }
-
-        // Fonction pour fermer le stream (iframe)
-        function closeStream() {
-            const iframeContainer = document.getElementById('iframe-container');
-            iframeContainer.style.left = '-100%';  // Cache l'iframe avec une animation
-        }
-
-        // Envoyer un message au parent pour appliquer le focus sur un champ d'entrée
+        // Ajouter la gestion du focus via postMessage
         function requestFocus() {
             const iframe = document.getElementById("stream-frame");
             iframe.contentWindow.postMessage({ action: 'focusInput' }, 'https://realtimestream.onrender.com');
         }
 
-        // Gérer le focus via le bouton du message
-        document.getElementById('message-input').addEventListener('focus', function() {
+        function openStream() {
+            const iframeContainer = document.getElementById('iframe-container');
+            iframeContainer.style.left = '0';
             requestFocus();
-        });
+        }
 
-        // Envoyer un message via Socket.io
-        document.getElementById('message-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const messageContent = document.getElementById('message-input').value;
-            if (messageContent.trim()) {
-                socket.emit('sendMessage', {
-                    eventId: eventId,
-                    accessCode: accessCode,
-                    content: messageContent
-                });
-                document.getElementById('message-input').value = ''; // Effacer le champ de texte
+        function closeStream() {
+            const iframeContainer = document.getElementById('iframe-container');
+            iframeContainer.style.left = '-100%';
+        }
+
+        window.addEventListener('message', function(event) {
+            if (event.origin !== 'https://realtimestream.onrender.com') {
+                return; // Assurez-vous que l'origine est correcte
+            }
+
+            const message = event.data;
+            if (message.action === 'focusInput') {
+                const input = document.getElementById('message-input');
+                if (input) {
+                    input.focus();
+                }
             }
         });
 
-        // Cacher le sélecteur d'emojis
-        document.getElementById('emoji-button').addEventListener('click', function() {
-            const emojiPicker = document.getElementById('emoji-picker');
-            emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+        // Gérer l'ouverture et la fermeture du sélecteur d'emojis
+        document.getElementById("emoji-button").addEventListener("click", function() {
+            const emojiPicker = document.getElementById("emoji-picker");
+            emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
         });
 
-        // Cacher l'emoji lors de la sélection
-        document.querySelectorAll('.emoji').forEach(function(emoji) {
-            emoji.addEventListener('click', function() {
-                const messageInput = document.getElementById('message-input');
-                messageInput.value += emoji.textContent;
-                document.getElementById('emoji-picker').style.display = 'none';
-            });
+        // Envoi de message
+        document.getElementById("message-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById("message-input");
+            const messageContent = messageInput.value.trim();
+            if (messageContent) {
+                socket.emit("sendMessage", messageContent);
+                messageInput.value = "";
+            }
         });
     </script>
 </body>
