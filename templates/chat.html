@@ -309,33 +309,27 @@
     const accessCode = getCookie('access_code');  // Récupération du code d'accès depuis les cookies (si nécessaire)
     
     fetch(`/get_stream_info?event_id=${eventId}&access_code=${accessCode}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                console.error('Erreur:', data.error);
-            } else {
-                // Utiliser l'ID de l'événement comme nom de la salle
-                const roomName = `${eventId}`;
-                
-                // Générer l'URL de la salle Jitsi avec l'ID de l'événement comme nom de la salle
-                // Le nom complet de la personne (présentateur) sera utilisé comme nom d'affichage (displayName)
-                const jitsiUrl = `https://meet.jit.si/${roomName}?configOverwrite={ 
-                    "startWithAudioMuted": true, 
-                    "startWithVideoMuted": true, 
-                    "subject": "Réunion pour l'événement ${eventId}", 
-                    "prejoinPageEnabled": false,
-                    "lobby": false,    // Désactive la salle d'attente
-                    "hideLobbyButton": true,  // Masque le bouton d'entrée dans la salle d'attente
-                    "allowAnonymous": true  // Autorise les participants anonymes
-                }&userInfo={"displayName":"${data.full_name}"}`;
-                
-                // Ouvrir la salle Jitsi dans un nouvel onglet
-                window.open(jitsiUrl, '_blank');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'appel API:', error);
-        });
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error('Erreur:', data.error);
+        } else {
+            // Utiliser l'ID de l'événement comme nom de la salle
+            const roomName = `${eventId}`;
+            
+            // Extraire le nom de la personne depuis les données
+            const userName = encodeURIComponent(data.full_name);  // Encodage de l'URL pour éviter des problèmes avec les espaces ou caractères spéciaux
+            
+            // Générer l'URL de la salle Whereby avec l'ID de l'événement et le nom de la personne
+            const wherebyUrl = `https://whereby.com/${roomName}?name=${userName}`;
+            
+            // Ouvrir la salle Whereby dans un nouvel onglet
+            window.open(wherebyUrl, '_blank');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de l\'appel API:', error);
+    });
     });
 
         function getCookie(name) {
