@@ -251,7 +251,6 @@
         function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
-
             return parts.length === 2 ? parts.pop().split(';').shift() : null;
         }
 
@@ -304,17 +303,25 @@
         };
 
         document.getElementById('access-stream-btn').addEventListener('click', function(event) {
-            event.preventDefault();
-            
+    event.preventDefault();
+    
+    const eventId = '{{ event_id }}';  // Récupération de l'ID de l'événement
+    const accessCode = getCookie('access_code');  // Récupération du code d'accès depuis les cookies (si nécessaire)
+    
             fetch(`/get_stream_info?event_id=${eventId}&access_code=${accessCode}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
                         console.error('Erreur:', data.error);
                     } else {
-                        // Générer l'URL de la salle Jitsi avec l'ID de l'événement et le nom de l'utilisateur
-                        const roomName = `${eventId}-${data.full_name}`;
-                        const jitsiUrl = `https://meet.jit.si/${roomName}`;
+                        // Utiliser l'ID de l'événement comme nom de la salle
+                        const roomName = `${eventId}`;
+                        
+                        // Générer l'URL de la salle Jitsi avec l'ID de l'événement comme nom de la salle
+                        // Le nom complet de la personne (présentateur) sera utilisé comme nom d'affichage (displayName)
+                        const jitsiUrl = `https://meet.jit.si/${roomName}?configOverwrite={ "startWithAudioMuted": true, "startWithVideoMuted": true, "subject": "Réunion pour l'événement ${eventId}" }&userInfo={"displayName":"${data.full_name}"}`;
+                        
+                        // Ouvrir la salle Jitsi dans un nouvel onglet
                         window.open(jitsiUrl, '_blank');
                     }
                 })
@@ -322,6 +329,12 @@
                     console.error('Erreur lors de l\'appel API:', error);
                 });
         });
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            return parts.length === 2 ? parts.pop().split(';').shift() : null;
+        }
     </script>
 </body>
 </html>
