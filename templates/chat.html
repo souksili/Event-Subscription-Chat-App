@@ -328,7 +328,9 @@
                 const fullName = data.full_name;
                 const muteAudio = false;
                 const muteVideo = false;
-                <iframe src="https://realtimestream.onrender.com/room/${eventId}/checkpoint/" class="chat-iframe" title="Chat intégré"></iframe>
+                const iframeContainer = document.createElement('div');
+                iframeContainer.innerHTML = `<iframe src="https://realtimestream.onrender.com/room/${eventId}/checkpoint/" class="chat-iframe" title="Chat intégré"></iframe>`;
+                document.body.appendChild(iframeContainer);
             }
         } catch (error) {
             console.error('Erreur JSON:', error);
