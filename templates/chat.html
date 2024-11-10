@@ -71,27 +71,59 @@
         }
 
         .message {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            line-height: 1.5;
-            font-size: 0.95rem;
-            max-width: 80%;
-            word-wrap: break-word;
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
         }
 
         .message.own {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: bold;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        .bubble {
+            position: relative;
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            background-color: #f1f1f1;
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .message.own .bubble {
             background-color: #e6f4ea;
             color: #2e7d32;
-            align-self: flex-end;
+        }
+
+        .timestamp {
+            display: block;
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 5px;
             text-align: right;
         }
 
-        .message.other {
-            background-color: #f1f1f1;
-            color: #444;
-            align-self: flex-start;
-            text-align: left;
+        /* Animation fade-in */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Formulaire d'envoi */
@@ -180,7 +212,13 @@
     </header>
     <div id="messages">
         {% for message in messages %}
-            <div class="message other">{{ message.content }}</div>
+            <div class="message {% if message.is_own %}own{% endif %}">
+                <div class="avatar">{{ message.sender_initial }}</div>
+                <div class="bubble">
+                    {{ message.content }}
+                    <span class="timestamp">{{ message.timestamp }}</span>
+                </div>
+            </div>
         {% endfor %}
     </div>
     <form id="message-form">
@@ -191,66 +229,7 @@
             <span class="emoji">😀</span>
             <span class="emoji">😁</span>
             <span class="emoji">😂</span>
-            <span class="emoji">🤣</span>
-            <span class="emoji">😃</span>
-            <span class="emoji">😄</span>
-            <span class="emoji">😅</span>
-            <span class="emoji">😆</span>
-            <span class="emoji">😉</span>
-            <span class="emoji">😊</span>
-            <span class="emoji">😋</span>
-            <span class="emoji">😎</span>
-            <span class="emoji">😍</span>
-            <span class="emoji">😘</span>
-            <span class="emoji">😗</span>
-            <span class="emoji">😙</span>
-            <span class="emoji">😚</span>
-            <span class="emoji">😇</span>
-            <span class="emoji">😐</span>
-            <span class="emoji">😑</span>
-            <span class="emoji">😶</span>
-            <span class="emoji">🙄</span>
-            <span class="emoji">😏</span>
-            <span class="emoji">😣</span>
-            <span class="emoji">😥</span>
-            <span class="emoji">😮</span>
-            <span class="emoji">🤔</span>
-            <span class="emoji">🤭</span>
-            <span class="emoji">🤫</span>
-            <span class="emoji">😱</span>
-            <span class="emoji">😨</span>
-            <span class="emoji">😰</span>
-            <span class="emoji">😯</span>
-            <span class="emoji">😦</span>
-            <span class="emoji">😮</span>
-            <span class="emoji">😬</span>
-            <span class="emoji">🤯</span>
-            <span class="emoji">😵</span>
-            <span class="emoji">🥴</span>
-            <span class="emoji">😕</span>
-            <span class="emoji">😟</span>
-            <span class="emoji">😮‍💨</span>
-            <span class="emoji">😤</span>
-            <span class="emoji">😢</span>
-            <span class="emoji">😭</span>
-            <span class="emoji">😤</span>
-            <span class="emoji">😠</span>
-            <span class="emoji">😡</span>
-            <span class="emoji">🤬</span>
-            <span class="emoji">🥵</span>
-            <span class="emoji">🥶</span>
-            <span class="emoji">😳</span>
-            <span class="emoji">😵‍💫</span>
-            <span class="emoji">😈</span>
-            <span class="emoji">👿</span>
-            <span class="emoji">👹</span>
-            <span class="emoji">👺</span>
-            <span class="emoji">💀</span>
-            <span class="emoji">👻</span>
-            <span class="emoji">👽</span>
-            <span class="emoji">🎃</span>
-            <span class="emoji">👑</span>
-            <span class="emoji">🦄</span>
+            <!-- Plus d'emojis -->
         </div>
     </form>
 
@@ -279,8 +258,14 @@
         socket.on('receive_message', function(data) {
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = 'message other';
-            messageDiv.textContent = data.message;
+            messageDiv.className = `message ${data.is_own ? 'own' : ''}`;
+            messageDiv.innerHTML = `
+                <div class="avatar">${data.sender_initial}</div>
+                <div class="bubble">
+                    ${data.message}
+                    <span class="timestamp">${data.timestamp}</span>
+                </div>
+            `;
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
