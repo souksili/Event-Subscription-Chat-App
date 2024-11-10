@@ -289,6 +289,7 @@
         function openStream() {
             const iframeContainer = document.getElementById('iframe-container');
             iframeContainer.style.left = '0';  // Faire glisser l'iframe depuis la gauche
+            setTimeout(() => document.getElementById('message-input').focus(), 500); // Mettre le focus après l'ouverture
         }
 
         function closeStream() {
