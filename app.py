@@ -262,6 +262,31 @@ def handle_send_message(data):
     # Émettre l'événement 'receive_message' avec l'initiale
     emit('receive_message', {'message': message_content, 'sender_initial': sender_initial}, room=event_id)
 
+@app.route('/get_stream_info', methods=['GET'])
+def get_stream_info():
+    # Récupérer l'access_code depuis les cookies ou les paramètres de la requête
+    access_code = request.args.get('access_code') or request.cookies.get('access_code')
+    event_id = request.args.get('event_id')
+
+    if not access_code or not event_id:
+        return jsonify({'error': 'access_code ou event_id manquant'}), 400
+
+    # Vérifier si l'utilisateur existe avec cet access_code pour l'événement donné
+    subscriber = Subscriber.query.filter(
+        Subscriber.access_code == access_code,
+        Subscriber.events.any(id=event_id),
+        Subscriber.confirmed == True
+    ).first()
+
+    if not subscriber:
+        return jsonify({'error': 'Utilisateur non autorisé ou non confirmé'}), 403
+
+    # Renvoyer l'ID de l'événement et le nom complet de l'utilisateur
+    return jsonify({
+        'event_id': event_id,
+        'full_name': subscriber.full_name
+    }), 200
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
