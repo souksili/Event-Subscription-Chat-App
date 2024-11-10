@@ -214,18 +214,6 @@
             border: none;
         }
 
-        #close-iframe {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #ff0000;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.5rem;
-        }
-
         @media (max-width: 768px) {
             header h1 {
                 font-size: 1.2rem;
@@ -277,7 +265,6 @@
 
     <!-- Conteneur de l'iframe -->
     <div id="iframe-container">
-        <button id="close-iframe" onclick="closeStream()">×</button>
         <iframe src="{{ stream_url }}" frameborder="0"></iframe>
     </div>
 
@@ -285,11 +272,6 @@
         function openStream() {
             const iframeContainer = document.getElementById('iframe-container');
             iframeContainer.style.left = '0';  // Faire glisser l'iframe depuis la gauche
-        }
-
-        function closeStream() {
-            const iframeContainer = document.getElementById('iframe-container');
-            iframeContainer.style.left = '-100%';  // Replacer l'iframe en dehors de l'écran
         }
 
         document.getElementById('message-form').onsubmit = function(event) {
