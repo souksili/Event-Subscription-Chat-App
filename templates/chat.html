@@ -249,6 +249,8 @@
         </div>
     </form>
 
+    <iframe id="stream-iframe"></iframe>
+
     <script>
         const baseURL = '{{ request.host_url }}'.replace(/^http:/, 'https:').replace(/\/$/, '');
         const socket = io.connect(baseURL);
