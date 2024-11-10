@@ -322,9 +322,9 @@
                 const fullName = data.full_name;
                 const muteAudio = false;
                 const muteVideo = false;
-                
+
                 // Construire l'URL avec les paramètres dans la chaîne de requête
-                const redirectUrl = `/room/${eventId}/checkpoint/?display_name=${encodeURIComponent(fullName)}&mute_audio=${encodeURIComponent(muteAudio)}&mute_video=${encodeURIComponent(muteVideo)}`;
+                const redirectUrl = `/room/${eventId}/checkpoints/?display_name=${encodeURIComponent(fullName)}&mute_audio=${encodeURIComponent(muteAudio)}&mute_video=${encodeURIComponent(muteVideo)}`;
 
                 // Rediriger vers l'URL construite
                 window.location.href = redirectUrl; 
