@@ -11,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f7f9fc;
@@ -286,36 +286,57 @@
         const eventId = '{{ event_id }}';
         const accessCode = '{{ access_code }}';
 
-        socket.emit('join', { eventId, accessCode });
-
-        // Fonction pour ouvrir le stream
+        // Fonction pour ouvrir le stream (iframe)
         function openStream() {
-            document.getElementById('iframe-container').style.left = '0';
+            const iframeContainer = document.getElementById('iframe-container');
+            iframeContainer.style.left = '0';  // Affiche l'iframe avec une animation
+            requestFocus();  // Demander le focus sur l'input de l'iframe
         }
 
-        // Fonction pour fermer le stream
+        // Fonction pour fermer le stream (iframe)
         function closeStream() {
-            document.getElementById('iframe-container').style.left = '-100%';
+            const iframeContainer = document.getElementById('iframe-container');
+            iframeContainer.style.left = '-100%';  // Cache l'iframe avec une animation
         }
 
-        // Gestion du focus dans l'iframe via postMessage
-        const iframe = document.getElementById("stream-frame");
-        window.addEventListener("message", function(event) {
-            if (event.origin !== "https://realtimestream.onrender.com") return; // Vérifier la source du message
-            if (event.data.action === "focusInput") {
-                const inputElement = iframe.contentWindow.document.getElementById("input-element-id"); // Remplacez par l'ID réel
-                if (inputElement) inputElement.focus();
+        // Envoyer un message au parent pour appliquer le focus sur un champ d'entrée
+        function requestFocus() {
+            const iframe = document.getElementById("stream-frame");
+            iframe.contentWindow.postMessage({ action: 'focusInput' }, 'https://realtimestream.onrender.com');
+        }
+
+        // Gérer le focus via le bouton du message
+        document.getElementById('message-input').addEventListener('focus', function() {
+            requestFocus();
+        });
+
+        // Envoyer un message via Socket.io
+        document.getElementById('message-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const messageContent = document.getElementById('message-input').value;
+            if (messageContent.trim()) {
+                socket.emit('sendMessage', {
+                    eventId: eventId,
+                    accessCode: accessCode,
+                    content: messageContent
+                });
+                document.getElementById('message-input').value = ''; // Effacer le champ de texte
             }
         });
 
-        // Ajouter un message dans le formulaire de chat
-        document.getElementById('message-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const message = document.getElementById('message-input').value.trim();
-            if (message) {
-                socket.emit('chat_message', { eventId, message });
-                document.getElementById('message-input').value = '';
-            }
+        // Cacher le sélecteur d'emojis
+        document.getElementById('emoji-button').addEventListener('click', function() {
+            const emojiPicker = document.getElementById('emoji-picker');
+            emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Cacher l'emoji lors de la sélection
+        document.querySelectorAll('.emoji').forEach(function(emoji) {
+            emoji.addEventListener('click', function() {
+                const messageInput = document.getElementById('message-input');
+                messageInput.value += emoji.textContent;
+                document.getElementById('emoji-picker').style.display = 'none';
+            });
         });
     </script>
 </body>
