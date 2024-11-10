@@ -2,7 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-# Table d'association
 event_subscriber = db.Table('event_subscriber',
     db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
     db.Column('subscriber_id', db.Integer, db.ForeignKey('subscriber.id'), primary_key=True)

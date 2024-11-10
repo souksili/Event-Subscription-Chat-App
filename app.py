@@ -224,7 +224,6 @@ def on_join(data):
     access_code = data.get('access_code')
     event_id = data['event_id']
 
-    # Récupérer l'utilisateur à partir de l'access_code
     subscriber = Subscriber.query.filter(
         Subscriber.access_code == access_code,
         Subscriber.events.any(id=event_id),
@@ -232,7 +231,6 @@ def on_join(data):
     ).first()
 
     if subscriber:
-        # Envoyer l'initiale et d'autres données si nécessaire
         emit('join_message', {'sender_initial': subscriber.full_name[0] if subscriber.full_name else 'A'}, room=event_id)
 
 @socketio.on('send_message')
@@ -251,27 +249,22 @@ def handle_send_message(data):
         emit('receive_message', {'message': 'Accès refusé'}, room=request.sid)
         return
 
-    # Récupérer l'initiale du nom complet
-    sender_initial = subscriber.full_name[0] if subscriber.full_name else 'A'  # Utiliser 'A' par défaut si nom vide
+    sender_initial = subscriber.full_name[0] if subscriber.full_name else 'A'
 
-    # Sauvegarder le message
     message = Message(event_id=event_id, content=message_content, sender=subscriber)
     db.session.add(message)
     db.session.commit()
 
-    # Émettre l'événement 'receive_message' avec l'initiale
     emit('receive_message', {'message': message_content, 'sender_initial': sender_initial}, room=event_id)
 
 @app.route('/get_stream_info', methods=['GET'])
 def get_stream_info():
-    # Récupérer l'access_code depuis les cookies ou les paramètres de la requête
     access_code = request.args.get('access_code') or request.cookies.get('access_code')
     event_id = request.args.get('event_id')
 
     if not access_code or not event_id:
         return jsonify({'error': 'access_code ou event_id manquant'}), 400
 
-    # Vérifier si l'utilisateur existe avec cet access_code pour l'événement donné
     subscriber = Subscriber.query.filter(
         Subscriber.access_code == access_code,
         Subscriber.events.any(id=event_id),
@@ -281,7 +274,6 @@ def get_stream_info():
     if not subscriber:
         return jsonify({'error': 'Utilisateur non autorisé ou non confirmé'}), 403
 
-    # Renvoyer l'ID de l'événement et le nom complet de l'utilisateur
     return jsonify({
         'event_id': event_id,
         'full_name': subscriber.full_name
