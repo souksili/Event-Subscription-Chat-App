@@ -14,7 +14,7 @@
         
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f0f2f5;
+            background-color: #f7f9fc;
             color: #333;
             display: flex;
             flex-direction: column;
@@ -24,56 +24,50 @@
         }
 
         header {
-            background-color: #0056b3;
+            background-color: #007bff;
             color: #fff;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         header h1 {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             margin: 0;
         }
 
         .stream-button {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 12px 25px;
-            background-color: #ffc107;
-            color: #212529;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #28a745;
+            border-radius: 25px;
             font-size: 1.1rem;
+            text-decoration: none;
+            color: white;
             transition: background-color 0.3s ease;
         }
 
         .stream-button:hover {
-            background-color: #e0a800;
+            background-color: #218838;
         }
 
         #messages {
             background: #fff;
             border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             margin: 20px;
             padding: 20px;
             flex-grow: 1;
             overflow-y: auto;
-            max-height: calc(100vh - 200px); /* Limiter la hauteur de la fenêtre de messages */
+            max-height: calc(100vh - 200px);
         }
 
         .message {
             display: flex;
             align-items: flex-end;
-            margin-bottom: 20px;
-            opacity: 0;
-            animation: fadeIn 0.4s forwards;
+            margin-bottom: 15px;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .message.own {
@@ -108,8 +102,8 @@
         }
 
         .message.own .bubble {
-            background-color: #e6f4ea;
-            color: #2e7d32;
+            background-color: #e6f7e6;
+            color: #4caf50;
         }
 
         .timestamp {
@@ -136,7 +130,7 @@
 
         #message-input {
             flex-grow: 1;
-            padding: 14px;
+            padding: 12px;
             font-size: 1.1rem;
             border: 1px solid #ddd;
             border-radius: 25px;
@@ -147,7 +141,7 @@
         }
 
         #message-input:focus {
-            border-color: #0056b3;
+            border-color: #007bff;
         }
 
         #emoji-button, button[type="submit"] {
@@ -199,6 +193,25 @@
 
         .emoji:hover {
             transform: scale(1.3);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.2rem;
+            }
+
+            .stream-button {
+                font-size: 0.9rem;
+                padding: 8px 18px;
+            }
+
+            #message-input {
+                font-size: 1rem;
+            }
+
+            #emoji-picker {
+                bottom: 60px;
+            }
         }
     </style>
 </head>
@@ -265,27 +278,17 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
 
-        socket.emit('join', { event_id: eventId });
-
-        const emojiButton = document.getElementById('emoji-button');
-        const emojiPicker = document.getElementById('emoji-picker');
-        emojiButton.onclick = function() {
-            emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+        document.getElementById('emoji-button').onclick = function() {
+            document.getElementById('emoji-picker').classList.toggle('show');
         };
 
         document.querySelectorAll('.emoji').forEach(emoji => {
             emoji.onclick = function() {
                 const messageInput = document.getElementById('message-input');
                 messageInput.value += emoji.textContent;
-                emojiPicker.style.display = 'none';
             };
         });
 
-        window.onclick = function(event) {
-            if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) {
-                emojiPicker.style.display = 'none';
-            }
-        };
     </script>
 </body>
 </html>
