@@ -134,6 +134,7 @@ def subscribe():
     if not subscriber:
         subscriber = Subscriber(email=email, full_name=full_name, access_code=generate_access_code())  # Enregistrer le nom complet
         db.session.add(subscriber)
+        db.session.flush()  # Ensure subscriber ID is available immediately
 
     if event_id in [e.id for e in subscriber.events]:
         return jsonify({'error': 'Déjà inscrit à cet événement'}), 400
