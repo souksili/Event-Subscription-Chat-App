@@ -75,8 +75,8 @@ def sync_events_with_csv(csv_url):
                 logging.warning(f"Ligne invalide dans le CSV : {row}")
                 continue
             
-            title = row[1].strip() or 'No title'
-            description = row[3].strip() or 'No description'
+            title = row[1].strip().encode('latin1').decode('utf-8') or 'No title'
+            description = row[3].strip().encode('latin1').decode('utf-8') or 'No description'
             date_str = row[5].strip()
 
             formatted_date = None
